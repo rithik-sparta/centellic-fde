@@ -57,9 +57,9 @@ def summarise_firm(firm: dict) -> dict:
         "id": firm["id"],
         "name": firm["name"],
         "summary": text_content,
-        "input_tokens":response.usage.input_tokens,
-        "output_tokens":response.usage.output_tokens,
-        "stop_reason":response.stop_reason
+        "input_tokens": response.usage.input_tokens,
+        "output_tokens": response.usage.output_tokens,
+        "stop_reason": response.stop_reason
     }
     
 def estimate_input_tokens(firm: dict) -> int:
@@ -136,7 +136,7 @@ def answer_from_context(question: str, context: str) -> dict:
         max_tokens = 500,
         system = GROUNDED_SYSTEM_PROMPT,
         messages = [{
-            "role":"user",
+            "role" : "user",
             "content" : f"Context: \n\n{context}\n\nQuestion: {question}"
         }],
     )
