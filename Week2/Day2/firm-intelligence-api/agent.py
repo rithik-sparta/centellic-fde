@@ -85,13 +85,19 @@ def ask_with_tools(question: str) -> dict:
                 "content" : result_text,
                 "is_error" : is_error
             })
-    
+
         messages.append({"role" : "user", 
                         "content" : tool_results
         })
     
     return {
-        "message" : "Oh, you reached the end of the function. If you managed to reach here, something went wrong"
+        "answer": "",
+        "completed" : False,
+        "tool_calls_made": tool_calls_made,
+        "input_tokens": total_input_tokens,
+        "output_tokens": total_output_tokens,
+        "stop_reason": response.stop_reason,
+        
     }
     
 

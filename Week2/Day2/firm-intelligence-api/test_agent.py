@@ -48,12 +48,12 @@ def test_agent_stops_at_max_iterations_instead_of_looping_forever(monkeypatch):
     body = response.json()
     
     # assert - completed
-    assert body.get("completed", None) == None
+    assert body.get("completed", None) == False
     
     
     # assert - stop_reason
-    assert body.get("stop_reason", None) == None
+    assert body.get("stop_reason", None) == "tool_use"
     
     
     # assert - tool_calls_made
-    assert body.get("tool_calls_made", -1) == -1
+    assert body.get("tool_calls_made", -1) == 0
