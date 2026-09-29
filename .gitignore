@@ -1,2 +1,4 @@
 .DS_Store
-**/chroma_store/
+**/.venv
+**/__pycache__
+**/chroma_store
