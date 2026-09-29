@@ -1,0 +1,34 @@
+Please see below for the 2 stages to be completed by EOD
+
+Stage 1
+
+A bank of summary questions from Week 3
+complete, in pairs, the 10 questions from this mornings standup (take 5 each and explain back to one another when ready)
+1. Explain one of the key steps in the RAG process.
+
+2. Explain what an embedding actually is.
+
+3. Explain why retrieval can fail even when it looks like it's working.
+
+4. Explain what the relevance floor does.
+
+5. Explain the difference between retrieval and generation in RAG.
+
+6. Explain what changed when we moved from the in-memory index to Chroma.
+
+7. Explain how tool use works, at a high level.
+The model requests access to a tool if it 
+
+8. Explain what context engineering means, in your own words.
+Context engineering is looking at everything we feed the model as input, from the prompt, the tools, the context
+
+9. Explain why we capped the tool-use loop.
+Each tool call can cost money, so to mitigate unneeded tool use, we capped the tool-use loop
+
+10. Explain why the UI needed its own separate environment.
+
+
+
+Stage 2
+
+I have re-purposed a coach guide that we use at Sparta for when a coach has to teach Streamlit, use this to complete the attached brief.

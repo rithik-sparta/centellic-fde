@@ -1,0 +1,6 @@
+#!/Users/rithikpatel/Documents/Sparta/centellic-fde/Week1/Day5/.venv/bin/python
+import sys
+from mypy.stubtest import main
+if __name__ == '__main__':
+    sys.argv[0] = sys.argv[0].removesuffix('.exe')
+    sys.exit(main())

@@ -1,0 +1,35 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2870
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 1. The commit messages. git log --oneline main.. <branch\'9b\
+Does each commit do one thing? Does the message say what and why?\
+2. The file list. git show --stat <sha> or git diff --stat main..<branch>\
+Is every file in this change part of this change? Anything unexpected here is the most\
+likely place a problem is hiding, because nobody looks.\
+3. The tests. Before the implementation.\
+What behaviour do they claim? Would they fail if the code were wrong?\
+4. The implementation. Now, and only now.\
+5. What is missing. The hardest read. A diff cannot show you the test nobody wrote\
+\
+Findings\
+\
+Where: main.py\
+What: dataclass definitions and API definitions are in the same file. Can be complex to manage as the application evolves.\
+Class: HUMAN\
+Ask: What will change as the application requirements evolve?\
+\
+\
+Where: git logs\
+What: One commit in log. Can break down commits to be more targeted\
+Class: HUMAN\
+Ask: Can we break down the commit into more targeted changes?\
+\
+Verdict\
+\
+Approve\
+\
+The tests for the code are detailed and cohesive, covering happy and sad paths. Ruff, Mypy and Pytest checks all passed. The only changes would be to make sure git commits are more targeted and ensure that main.py is split into api definitions and core classes related to business logic.}
