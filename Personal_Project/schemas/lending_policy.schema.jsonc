@@ -1,0 +1,32 @@
+/* Represents the lender's rules for granting credit: minimum rating, maximum
+   leverage, minimum interest cover and exposure limits, optionally per sector.
+   Used as the benchmark when assessing a borrower.
+   Policy selection for a borrower: use the active policy whose sector equals the
+   borrower's sector and whose dates cover the assessment date. If there is none,
+   use the active general policy (sector empty). If there is neither, refer for
+   review. Policies are not edited once used in an assessment: a change creates a
+   new policy that supersedes the old one. */
+
+{
+  "entity": "lending_policy",
+  "primary_key": "policy_id",
+  "foreign_keys": [
+    { "key_name": "supersedes_policy_id", "references": "lending_policy.policy_id" }
+  ],
+  "fields": [
+    {"key_name": "policy_id", "value_type": "string", "required": true, "description": "Unique identifier for the policy (primary key)"},
+    {"key_name": "sector", "value_type": "string", "required": false, "description": "Sector the policy applies to, matching borrower.sector exactly. Leave None for the general policy, which applies to borrowers in sectors with no sector-specific policy"},
+    {"key_name": "max_internal_rating_rank", "value_type": "integer", "required": true, "description": "Worst allowed rating, on the scale of 1 (best) to 22 (worst)."},
+    {"key_name": "max_leverage", "value_type": "number", "required": true, "description": "Maximum allowed Net Debt / EBITDA. Expressed as a multiple"},
+    {"key_name": "min_interest_cover", "value_type": "number", "required": true, "description": "Minimum allowed EBITDA / net interest. Expressed as a multiple"},
+    {"key_name": "currency","value_type": "string",  "required": true,  "description": "ISO 4217 currency code, e.g. GBP" },
+    {"key_name": "max_exposure_per_borrower", "value_type": "number", "required": false, "description": "Compared against the sum of facility commitments. A numeric money amount"},
+    {"key_name": "max_sector_exposure", "value_type": "number", "required": false, "description": "Portfolio concentration limit for the sector"},
+    {"key_name": "require_security", "value_type": "boolean", "required": false, "description": "Whether facilities must be secured"},
+    {"key_name": "effective_date", "value_type": "date", "required": true, "description": "Date the policy takes effect (DD-MM-YYYY)"},
+    {"key_name": "end_date", "value_type": "date", "required": false, "description": "Date the policy stops applying (DD-MM-YYYY). Leave None while the policy is current"},
+    {"key_name": "supersedes_policy_id", "value_type": "string", "required": false, "description": "Foreign key to the earlier policy this one replaces. Leave None for an original policy"},
+    {"key_name": "status", "value_type": "string", "required": true, "description": "Policy status. At most one active policy per sector, and one active general policy", "allowed_values": ["active", "retired"]},
+    {"key_name": "notes", "value_type": "string", "required": false, "description": "Notes regarding the policy, that may have been missed in other fields"}
+  ]
+}

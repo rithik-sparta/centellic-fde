@@ -1,0 +1,22 @@
+/* Represents one test of a covenant at a point in time. Records the measured
+   value, headroom and result, giving a history of compliance. Links to a
+   covenant and, where relevant, the financial period tested. */
+
+{
+  "entity": "covenant_test",
+  "primary_key": "test_id",
+  "foreign_keys": [
+    {"key_name": "covenant_id", "references": "covenant.covenant_id"},
+    {"key_name": "period_id", "references": "financial_period.period_id"}
+  ],
+  "fields": [
+    {"key_name": "test_id", "value_type": "string", "required": true, "description": "Unique identifier for the test (primary key)"},
+    {"key_name": "covenant_id", "value_type": "string", "required": true, "description": "Foreign key to the covenant tested"},
+    {"key_name": "period_id", "value_type": "string", "required": false, "description": "Foreign key to the financial period tested. Empty for event-driven tests"},
+    {"key_name": "test_date", "value_type": "date", "required": true, "description": "Date the test was performed (DD-MM-YYYY)"},
+    {"key_name": "actual_value", "value_type": "number", "required": false, "description": "Measured value. Empty for non-financial covenants"},
+    {"key_name": "result", "value_type": "string", "required": true, "description": "Outcome of the test", "allowed_values": ["pass", "fail", "waived"]},
+    {"key_name": "headroom", "value_type": "number", "required": false, "description": "Absolute distance between the actual metric and covenant threshold. Expressed as a multiple (e.g. 0.3x)"},
+    {"key_name": "notes", "value_type": "string", "required": false, "description": "Free-text notes on the test"}
+  ]
+}

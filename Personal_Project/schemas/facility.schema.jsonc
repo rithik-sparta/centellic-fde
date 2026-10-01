@@ -1,0 +1,27 @@
+/* Represents a specific credit arrangement (e.g. term loan, revolver) between
+   the lender and a borrower. Records the amount, dates, pricing, ranking and
+   security. Links to a borrower and is the parent record for covenants. */
+
+{
+  "entity": "facility",
+  "primary_key": "facility_id",
+  "foreign_keys": [
+    { "key_name": "borrower_id", "references": "borrower.borrower_id" }
+  ],
+  "fields": [
+    {"key_name": "facility_id",        "value_type": "string",  "required": true,  "description": "Unique identifier for the facility (primary key)" },
+    {"key_name": "borrower_id",        "value_type": "string",  "required": true,  "description": "Foreign key to the borrower that holds this facility" },
+    {"key_name": "facility_type",      "value_type": "string",  "required": true,  "allowed_values": ["term_loan", "revolver", "overdraft", "trade_finance", "guarantee", "other"], "description": "Type of credit facility" },
+    {"key_name": "currency",           "value_type": "string",  "required": true,  "description": "ISO 4217 currency code, e.g. GBP" },
+    {"key_name": "committed_amount",   "value_type": "number",  "required": true,  "description": "Total committed limit." },
+    {"key_name": "drawn_amount",       "value_type": "number",  "required": false, "description": "Amount drawn as at balance_as_of_date" },
+    {"key_name": "available_amount",    "value_type": "number",  "required": false, "description": "Amount available to be drawn as at balance_as_of_date, after applicable restrictions"},
+    {"key_name": "balance_as_of_date", "value_type": "date", "required": false, "description": "Date drawn_amount and available_amount were last confirmed (DD-MM-YYYY). Required when either amount is given" },
+    {"key_name": "start_date",         "value_type": "date",    "required": false, "description": "Date the facility starts (DD-MM-YYYY)" },
+    {"key_name": "maturity_date",      "value_type": "date",    "required": false, "description": "Final repayment date (DD-MM-YYYY)" },
+    {"key_name": "margin_bps",         "value_type": "number",  "required": false, "description": "Interest margin over the base rate, in basis points" },
+    {"key_name": "ranking",            "value_type": "string",  "required": false, "allowed_values": ["senior_secured", "senior_unsecured", "subordinated"], "description": "Ranking of the debt in the capital structure" },
+    {"key_name": "security_description","value_type": "string", "required": false, "description": "Description of collateral or security held" },
+    {"key_name": "status",             "value_type": "string",  "required": true,  "allowed_values": ["proposed", "active", "repaid", "defaulted"], "description": "Lifecycle status of the facility" }
+  ]
+}

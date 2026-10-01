@@ -1,0 +1,21 @@
+/* Represents an entity that receives credit. Holds the core attributes used to
+   assess it: sector, credit rating, and the latest leverage and interest cover.
+   Parent record for facilities, financial periods and assessments. */
+
+{
+  "entity": "borrower",
+  "primary_key": "borrower_id",
+  "foreign_keys": [
+    { "key_name": "latest_period_id", "references": "financial_period.period_id" }
+  ],
+  "fields": [
+    {"key_name": "borrower_id",    "value_type": "string",  "required": true,  "description": "Unique identifier for the borrower (primary key)" },
+    {"key_name": "name",           "value_type": "string",  "required": true,  "description": "Legal name of the borrower" },
+    {"key_name": "sector",         "value_type": "string",  "required": true,  "description": "Industry sector, e.g. Retail, Energy, Healthcare" },
+    {"key_name": "rating_agency",  "value_type": "string",  "required": false,  "allowed_values": ["S&P", "Moody", "Fitch"] , "description": "Rating scale used for credit_rating. One of S&P, Moody or Fitch. Leave None for a borrower with no agency rating" },
+    {"key_name": "credit_rating",  "value_type": "string",  "required": false, "description": "Current agency credit rating, e.g. BB+. Must be part of the scale chosen. Required when rating_agency is set, leave None otherwise" },
+    {"key_name": "as_of_date",     "value_type": "date",    "required": false, "description": "Date the rating fields (rating_agency, credit_rating, internal_rating_rank) were last updated (DD-MM-YYYY). Leave None if no rating has been recorded" },
+    {"key_name": "internal_rating_rank", "value_type": "integer", "required": false, "description": "Internal credit rating rank used by the lender; 1 is strongest and 22 indicates weakest credit quality. Leave None until the lender has assigned an internal rating. A borrower with no internal rank cannot be checked against the policy rating limit and should be referred for review"},
+    {"key_name": "latest_period_id", "value_type": "string", "required": false, "description": "Foreign key to the most recent financial_period. The borrower's current leverage and interest cover, and their basis, are taken from this record. Leave None until the borrower's first financial_period exists" }
+  ]
+}
