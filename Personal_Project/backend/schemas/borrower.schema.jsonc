@@ -17,6 +17,6 @@
     {"key_name": "as_of_date",     "value_type": "date",    "required": false, "description": "Date the rating fields (rating_agency, credit_rating, internal_rating_rank) were last updated (DD-MM-YYYY). Leave None if no rating has been recorded" },
     {"key_name": "internal_rating_rank", "value_type": "integer", "required": false, "description": "Internal credit rating rank used by the lender; 1 is strongest and 22 indicates weakest credit quality. Leave None until the lender has assigned an internal rating. A borrower with no internal rank cannot be checked against the policy rating limit and should be referred for review"},
     {"key_name": "latest_period_id", "value_type": "string", "required": true, "description": "Foreign key to the most recent financial_period. The borrower's current leverage and interest cover, and their basis, are taken from this record. Leave None until the borrower's first financial_period exists" },
-    {"key_name": "archived",    "value_type": "boolean",  "required": true,  "description": "Describes if the borrower has been archived in the system. We still want to keep a reference of a borrowers past assessments and financial results, so we mark the record as archived." }
+    {"key_name": "deleted",    "value_type": "boolean",  "required": true,  "description": "Describes if the borrower has been deleted in the system. We still want to keep a reference of a borrowers past assessments and financial results, so we mark the record as deleted rather than removing them from the system." }
   ]
 }

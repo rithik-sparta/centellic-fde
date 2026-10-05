@@ -21,7 +21,7 @@ class NewBorrower(BaseModel):
     as_of_date : str | None = Field(min_length=1)
     internal_rating_rank : int | None = Field(None,ge=1,lt=23)
     latest_period_id : str | None = Field(None, min_length=4)
-    archived : bool = Field(default=False)
+    deleted : bool = Field(default=False)
 
 class UpdateBorrower(BaseModel):
     name : str | None = Field(None, min_length=1)
@@ -31,11 +31,12 @@ class UpdateBorrower(BaseModel):
     as_of_date : str | None = Field(min_length=1)
     internal_rating_rank : int | None = Field(None, ge=1, lt=23)
     latest_period_id : str | None = Field(None, min_length=4)
-    archived : bool | None = Field(None)
+    deleted : bool | None = Field(None)
     
 def get_borrower_or_404(borrower_id: str) -> dict:
     for borrower in borrowers:
-        if (borrower["borrower_id"] == borrower_id) and (not borrower["archived"]):
+        
+        if (borrower["borrower_id"] == borrower_id) and (not borrower["deleted"]):
             return borrower
     raise HTTPException(404, f"No borrower with id {borrower_id}.")
 
@@ -80,7 +81,7 @@ def add_borrower(new : NewBorrower, idempotency_key: str | None = Header(default
         "as_of_date": new.as_of_date,
         "internal_rating_rank": new.internal_rating_rank,
         "latest_period_id": new.latest_period_id,
-        "deleted": new.archived,
+        "deleted": new.deleted,
     }
     
     borrowers.append(borrower)
@@ -102,7 +103,7 @@ def update_borrower(borrower : dict = Depends(get_borrower_or_404), to_update: U
 # We want to track borrowers we previously had, to ensure record history is consistent. We just no longer report on it.
 @router.delete("/{borrower_id}", status_code = 204)
 def delete_borrower(borrower : dict = Depends(get_borrower_or_404)):
-    borrower["archived"] = True
+    borrower["deleted"] = True
 
 
 @router.post("/{borrower_id}/summary")
