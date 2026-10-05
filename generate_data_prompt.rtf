@@ -1,0 +1,39 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2870
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\froman\fcharset0 Times-Roman;\f1\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\fs24 \cf0 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 You are creating information for a credit analyst.\
+Create two python files; data.py and documents.py\
+\
+Create records entries for the provided schema.\
+\
+These entries are to be included in a data.py file.\
+Follow the schema provided.\
+Ensure examples are realistic but do not under any circumstances copy real personal data. Use names that sound real\
+\
+Create a variety of examples of borrowers where their credit rating would fall, improve or say the same. Also add an example of where a borrower has defaulted.\
+\
+For self-referencing foreign keys, make sure there are no cyclical dependencies.\
+\
+Create documents that relate to the records as a documents.py file with a list of JSON objects.\
+Each document entry should have :\
+- id as a unique string e.g. \'93doc-01\'94\
+- date in dd-mm-yyyy format. Make sure these are some point in the past.\
+- type of document. One of credit-memo, outlook, report, covenant summaries, lending policy, restructuring case study\
+- title : str = the title of the document. Limited to one sentence at most\
+- text : str = Contents of document. Limit to 2 paragraphs\
+\
+Ensure each type of document is generated and the text contents and title matches the type.\'a0\
+In one of the documents and lending_policies notes field, highlight which sectors are showing patterns of being cyclical and what that means in terms of that lending policy.\
+Do not use em dashes. Keep it as realistic looking as possible to model what real data and documents would look like
+\f1 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+Ensure that there are at least 5 structured records per entity and at least 8 documents.\
+\
+Once the documents are generated, in chat briefly say which borrowers were generated for which evaluation outcome and why this is the case referring to the data and documents.}

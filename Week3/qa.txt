@@ -1,0 +1,39 @@
+1. Explain one of the key steps in the RAG process.
+Retrieval - Using the query to find relevant information from a corpus of data
+Augmentation - Taking the retrieved information and combining it with the prompts to provide context, in a way that can be interpreted well by the AI model
+Generation - Creating a response from the context + prompt.
+
+2. Explain what an embedding actually is.
+List of numbers that represent the meaning of a token in multi dimensional space
+
+3. Explain why retrieval can fail even when it looks like it's working.
+Sometimes models can not handle negations well, they may see US and not US as having similar meaning.
+
+4. Explain what the relevance floor does.
+Is a bar for the relevance score. Only put information in the context that is above the relevance floor. Prevents us from using irrelevant information as context.
+
+5. Explain the difference between retrieval and generation in RAG.
+Retrieval - Getting relevant information from a corpus using the query.
+Generation - Creating a response using the prompt, tools and other retrieved information.
+
+6. Explain what changed when we moved from the in-memory index to Chroma.
+When we moved from an in memory index to a Chroma database, 
+the embeddings were persisted between runs so we no longer had to run build index when restarting the server
+
+7. Explain how tool use works, at a high level.
+The model requests access to a tool if it needs it to answer a question. 
+After getting the result back from the tools it adds the message to its context window
+
+8. Explain what context engineering means, in your own words.
+Context engineering is looking at everything we feed the model as input, from the prompt, the tools, the context and previous conversations in the session.
+
+9. Explain why we capped the tool-use loop.
+Each tool call can cost money, so to mitigate unneeded tool use, we capped the tool-use loop
+
+10. Explain why the UI needed its own separate environment.
+The ui needs its own environment to ensure that there is no tight coupling between what the user sees and the backend logic of the application.
+We want to keep these seperate so any changes in the user interface does not impact the backend.
+The ui needs its own enviornment to seperate its logic from the backend.
+This is good for compartmentalisation and scaling the application when deploying to production. Only scale up the part that needs to be scaled up.
+Ensures dependency isolation - Ensures version conflicts as each have their own set of dependencies.
+The frontend runs in the browser while the backend runs on a server only you control.
