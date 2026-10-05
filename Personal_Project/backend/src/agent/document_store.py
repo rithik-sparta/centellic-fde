@@ -4,11 +4,12 @@ import chromadb
 import voyageai
 
 from data.documents import documents
+from config import VOYAGE_API_KEY
 
 
 EMBED_MODEL = "voyage-3-lite"
 voyage = voyageai.Client(  # type: ignore
-    api_key = os.environ["VOYAGE_API_KEY"],
+    api_key = VOYAGE_API_KEY,
     max_retries = 3,
     timeout = 30,
 )

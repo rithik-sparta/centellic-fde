@@ -1,6 +1,7 @@
 
 from pydantic import BaseModel, Field
-from agent.model import MODEL, SYSTEM_PROMPT, client
+from config import MODEL
+from agent.model import SYSTEM_PROMPT, client
 from agent.summarise_borrower import build_prompt
 from utils import list_fields
 

@@ -5,11 +5,9 @@ import anthropic
 import dotenv
 from agent import document_store
 from anthropic.types import MessageParam, ToolUnionParam
-dotenv.load_dotenv()
+from config import ANTHROPIC_API_KEY, MODEL
 
-MODEL = os.environ["ANTHROPIC_MODEL"]
 
-RELEVANCE_FLOOR = os.environ["RELEVANCE_FLOOR"]
 
 SYSTEM_PROMPT = (
     "You are a credit analyst reviewing a borrowers performance. "
@@ -45,7 +43,7 @@ TOOLS : dict[str,dict] = {
 MAX_ITERATIONS = 4
 
 client = anthropic.Anthropic(
-    api_key=os.environ["ANTHROPIC_API_KEY"],
+    api_key=ANTHROPIC_API_KEY,
     timeout=30.0,
     max_retries=3,
 )
