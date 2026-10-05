@@ -62,6 +62,8 @@ def build_prompt(borrower: dict) -> str:
     )
     if borrower["latest_period_id"] is not None:
         prompt += f"Latest Financial Period id : {borrower["latest_period_id"]}"
+        
+    financial_period_fields = ["period_end_date", "period_type", "currency", "revenue", "cash", "total_debt", "net_interest_expense", "ebitda", "ebitda_basis", "net_income", "depreciation_amortisation", "total_assets", "ebitda_adjustments", "net_worth", "operating_cash_flow", "capex", "leverage, interest_cover", "dscr", "debt_basis", "includes_leases", "earning_period_basis", "ratio_source"]
     
     facility_results = _get_facilities(borrower["borrower_id"])
     
@@ -73,7 +75,7 @@ def build_prompt(borrower: dict) -> str:
         financial_period_ids.update(ar["financial_period_ids"])
         
     financial_period_results = _get_financial_periods(financial_period_ids)
-    prompt += list_all_data("Financial Period", "period_id", financial_period_results, ["period_end_date", "period_type", "currency", "revenue", "cash", "total_debt", "net_interest_expense", "ebitda", "ebitda_basis", "ebitda_judgement", "net_worth", "operating_cash_flow", "capex", "leverage, interest_cover", "dscr", "debt_basis", "includes_leases", "earning_period_basis", "ratio_source"])
+    prompt += list_all_data("Financial Period", "period_id", financial_period_results, financial_period_fields)
         
     policy_ids = {a["policy_id"] for a in assessment_results}
     
@@ -93,7 +95,7 @@ def build_prompt(borrower: dict) -> str:
             f"Latest Financial Period Results: [{latest_finanical_results["period_id"]}]\n"
         )
         
-        prompt += list_fields(latest_finanical_results, ["period_end_date", "period_type", "currency", "revenue", "cash", "total_debt", "net_interest_expense", "ebitda", "ebitda_basis", "ebitda_judgement", "net_worth", "operating_cash_flow", "capex", "leverage, interest_cover", "dscr", "debt_basis", "includes_leases", "earning_period_basis", "ratio_source"])
+        prompt += list_fields(latest_finanical_results, financial_period_fields)
                 
         covenant_test_results = _get_covenant_tests(borrower["latest_period_id"])
         
@@ -113,13 +115,14 @@ def build_prompt(borrower: dict) -> str:
     return prompt
 
 def build_credit_memo_prompt(borrower : dict):
+    financial_period_fields = ["period_end_date", "period_type", "currency", "revenue", "cash", "total_debt", "net_interest_expense", "ebitda", "ebitda_basis", "net_income", "depreciation_amortisation", "total_assets", "ebitda_adjustments", "net_worth", "operating_cash_flow", "capex", "leverage, interest_cover", "dscr", "debt_basis", "includes_leases", "earning_period_basis", "ratio_source"]
     
     prompt = "Create a draft credit memo for this borrower. Go over the borrower name, sector, and latest financial period statistics.\n"
     prompt += list_fields(borrower,["borrower_id", "name", "sector", "rating_agency", "credit_rating", "as_of_date", "internal_rating_rank", "archived"])
     if borrower["latest_period_id"] is not None:
         fp = _get_financial_period(borrower["latest_financial_period"])
         fp = cast(dict[str,Any],fp)
-        prompt += list_fields(fp, ["period_end_date", "period_type", "currency", "revenue", "cash", "total_debt", "net_interest_expense", "ebitda", "ebitda_basis", "ebitda_judgement", "net_worth", "operating_cash_flow", "capex", "leverage, interest_cover", "dscr", "debt_basis", "includes_leases", "earning_period_basis", "ratio_source"])    
+        prompt += list_fields(fp, financial_period_fields)    
     
     return prompt
     
