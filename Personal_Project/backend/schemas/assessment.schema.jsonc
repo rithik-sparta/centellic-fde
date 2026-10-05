@@ -1,0 +1,32 @@
+/* Represents the outcome of assessing a borrower against a lending policy,
+   using its data and supporting documents. Records risks, mitigants, policy
+   breaches, a recommendation and its rationale, plus the human review status.
+   Links to a borrower, a policy and optionally a facility. */
+
+{
+  "entity": "assessment",
+  "primary_key": "assessment_id",
+  "foreign_keys": [
+    {"key_name": "borrower_id", "references": "borrower.borrower_id"},{"key_name": "facility_id", "references": "facility.facility_id"},
+    {"key_name": "policy_id", "references": "lending_policy.policy_id"},
+    {"key_name": "primary_period_id", "references": "financial_period.period_id"}
+  ],
+  "fields": [
+    {"key_name": "assessment_id", "value_type": "string", "required": true, "description": "Unique identifier for the assessment (primary key)"},
+    {"key_name": "borrower_id", "value_type": "string", "required": true, "description": "Foreign key to the borrower assessed"},
+    {"key_name": "policy_id", "value_type": "string", "required": true, "description": "Foreign key to the lending policy applied"},
+    {"key_name": "primary_period_id", "value_type": "string", "required": true, "description": "Foreign key to the financial_period whose figures were used for the policy and covenant tests" },
+    {"key_name": "financial_period_ids", "value_type": "array", "items_type": "string", "required": true, "description": "IDs of all financial periods the assessment considered, including the primary period, for trend analysis" },
+    {"key_name": "facility_id", "value_type": "string", "required": false, "description": "Foreign key to the facility, if the assessment is for a specific facility or proposal"},
+    {"key_name": "assessed_at", "value_type": "datetime", "required": true, "description": "When the assessment was produced (ISO 8601)"},
+    {"key_name": "assessed_by", "value_type": "string", "required": true, "description": "Identifies the AI agent or person, plus the version"},
+    {"key_name": "policy_breaches", "value_type": "array", "required": true, "description": "Policy limits the borrower breaches", "items_type": "string"},
+    {"key_name": "key_strengths", "value_type": "array", "required": true, "description": "Main strengths identified", "items_type": "string"},
+    {"key_name": "key_risks", "value_type": "array", "required": true, "description": "Main risks identified", "items_type": "string"},
+    {"key_name": "mitigants", "value_type": "array", "required": true, "description": "Factors that offset the risks", "items_type": "string"},
+    {"key_name": "proposed_internal_rating_rank", "value_type": "integer", "required": true, "description": "Internal rating rank proposed by the assessment"},
+    {"key_name": "recommendation", "value_type": "string", "required": true, "description": "Recommended decision", "allowed_values": ["approve", "approve_with_conditions", "decline", "refer"]},
+    {"key_name": "rationale", "value_type": "string", "required": true, "description": "Explanation of the recommendation"},
+    {"key_name": "review_status", "value_type": "string", "required": true, "description": "Human sign-off state of the assessment", "allowed_values": ["draft", "reviewed", "approved", "rejected"]}
+  ]
+}

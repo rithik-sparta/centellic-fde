@@ -1,0 +1,39 @@
+/* Represents a borrower's financial results for a single period (annual,
+   half-year or quarterly). Holds the figures and ratios used to track
+   performance over time and to test covenants. Links to a borrower. */
+
+{
+  "entity": "financial_period",
+  "primary_key": "period_id",
+  "foreign_keys": [
+    {"key_name": "borrower_id", "references": "borrower.borrower_id" }
+  ],
+  "fields": [
+    {"key_name": "period_id", "value_type": "string", "required": true, "description": "Unique identifier for the financial period (primary key)"},
+    {"key_name": "borrower_id", "value_type": "string", "required": true, "description": "Foreign key to the borrower"},
+    {"key_name": "period_end_date", "value_type": "date", "required": true, "description": "End of the financial period (DD-MM-YYYY)"},
+    {"key_name": "period_type", "value_type": "string", "required": true, "description": "Length of the period", "allowed_values": ["annual", "half_year", "quarterly"]},
+    {"key_name": "currency", "value_type": "string", "required": true, "description": "ISO 4217 currency code"},
+    {"key_name": "revenue", "value_type": "number", "required": true, "description": "Revenue for the period"},
+    
+    {"key_name": "cash", "value_type": "number", "required": true, "description": "Cash at period end; used to derive net debt"},
+    {"key_name": "total_debt", "value_type": "number", "required": true, "description": "Total debt at period end"},
+    {"key_name": "net_interest_expense", "value_type": "number", "required": true, "description": "Net interest expense for the period"},
+    {"key_name": "ebitda", "value_type": "number", "required": true, "description": "EBITDA for the period"},
+    {"key_name": "ebitda_basis", "value_type": "string", "required": true, "allowed_values": ["reported", "adjusted", "covenant_defined"], "description": "How ebitda was measured: as reported in the accounts, adjusted for one-off items, or as defined in the facility agreement" },
+    {"key_name": "ebitda_adjustments", "value_type": "number", "required": false, "description": "Net add-backs (positive) or deductions (negative) between reported and adjusted EBITDA. Leave None when ebitda_basis is reported" },
+    {"key_name": "net_worth", "value_type": "number", "required": false, "description": "Net worth at period end; needed for net worth covenants"},
+    
+    
+    {"key_name": "operating_cash_flow", "value_type": "number", "required": false, "description": "Operating cash flow for the period"},
+    {"key_name": "capex", "value_type": "number", "required": false, "description": "Capital expenditure for the period"},
+    {"key_name": "leverage", "value_type": "number", "required": true, "description": "Debt / EBITDA for this period, expressed as a ratio (e.g. 3.4). Debt is measured as gross or net according to debt_basis, and EBITDA covers the span given in earnings_period_basis"},
+    {"key_name": "interest_cover", "value_type": "number", "required": true, "description": "EBITDA / net interest for this period, expressed as a ratio (e.g. 4.1). EBITDA is measured as stated in ebitda_basis and covers the span given in earnings_period_basis"},
+    {"key_name": "dscr", "value_type": "number", "required": false, "description": "Debt service cover ratio; needed for the dscr covenant metric"},
+    {"key_name": "source_document_id", "value_type": "string", "required": false, "description": "Reference to the supporting document"},
+    {"key_name": "debt_basis", "value_type": "string", "required": true, "allowed_values": ["gross", "net"], "description": "Whether leverage is calculated on gross debt (total_debt) or net debt (total_debt minus cash)" },
+    {"key_name": "includes_leases", "value_type": "boolean", "required": true, "description": "Whether lease liabilities are included in total_debt" },
+    {"key_name": "earnings_period_basis", "value_type": "string", "required": true, "allowed_values": ["period_only", "ltm", "annualised"], "description": "Time span the earnings figures cover: this period only, the last twelve months, or the period scaled up to a full year" },
+    {"key_name": "ratio_source", "value_type": "string", "required": true, "allowed_values": ["reported_accounts", "compliance_certificate", "calculated_by_lender"], "description": "Where leverage and interest_cover came from: the borrower's accounts, a covenant compliance certificate, or the lender's own calculation" }
+  ]
+}
