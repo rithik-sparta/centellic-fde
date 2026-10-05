@@ -18,7 +18,7 @@
     {"key_name": "primary_period_id", "value_type": "string", "required": true, "description": "Foreign key to the financial_period whose figures were used for the policy and covenant tests" },
     {"key_name": "financial_period_ids", "value_type": "array", "items_type": "string", "required": true, "description": "IDs of all financial periods the assessment considered, including the primary period, for trend analysis" },
     {"key_name": "facility_id", "value_type": "string", "required": false, "description": "Foreign key to the facility, if the assessment is for a specific facility or proposal"},
-    {"key_name": "assessed_at", "value_type": "datetime", "required": true, "description": "When the assessment was produced (ISO 8601)"},
+    {"key_name": "assessed_at", "value_type": "datetime", "required": true, "description": "When the assessment was produced (DD-MM-YYYY)"},
     {"key_name": "assessed_by", "value_type": "string", "required": true, "description": "Identifies the AI agent or person, plus the version"},
     {"key_name": "policy_breaches", "value_type": "array", "required": true, "description": "Policy limits the borrower breaches", "items_type": "string"},
     {"key_name": "key_strengths", "value_type": "array", "required": true, "description": "Main strengths identified", "items_type": "string"},
