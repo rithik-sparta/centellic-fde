@@ -116,8 +116,6 @@ An assessment normally looks at more than a single period. Analysts check the tr
 
 The policy tests, such as `max_leverage` and `min_interest_cover`, need one specific period's figures, normally the latest. With only a list, the record wouldn't say which of those periods those figures came from, so you'd have to guess by taking the most recent one, which fails if the agent used something else.
 
-
-
 Why choose the scale of 1 to 22?
 
 Because the S&P scale has 22 distinct grades, so each grade gets its own number. S&P and Fitch grades run from AAA down to D, and numbering them in order gives 1 to 22:
@@ -136,15 +134,44 @@ It also lines up with the other agencies. Moody's has the same 21 grades from Aa
 
 The main thing is that the numbering is used consistently, since policy values only have meaning against it. If your credit team already has an internal scale or a preferred convention, it would be sensible to use that instead, and I can rebuild the conversion table around it.
 
-
 Rules when generating examples:
 
 `borrower_id` duplicates what the facility already implies, which allows the two to disagree. `currency` has the same problem against `facility.currency`
-
 
 ## Calculations
 
 ```
 available liquidity = cash - restricted cash + available undrawn facilities
 liquidity headroom = available liquidity - debt due within 12 months - minimum liquidity requirement
+
+Net debt        = total_debt - cash
+Leverage (net)  = (total_debt - cash) / ebitda        [debt_basis = net]
+Leverage (gross)= total_debt / ebitda                  [debt_basis = gross]
+Interest cover  = ebitda / net_interest_expense
+Adjusted EBITDA = reported EBITDA + ebitda_adjustments
+EBITDA margin   = ebitda / revenue
+DSCR            = operating_cash_flow / (net_interest_expense + scheduled principal)
+
+Maximum covenant (<=):  headroom = threshold - actual
+                        headroom % = (threshold - actual) / threshold
+Minimum covenant (>=):  headroom = actual - threshold
+                        headroom % = (actual - threshold) / threshold
+Net worth covenant:     headroom = net_worth - threshold   (an amount, not a multiple)
+
+Leverage covenant:        cushion = 1 - (actual leverage / threshold)
+Interest cover covenant:  cushion = 1 - (threshold / actual cover)
+
+Exposure and liquidity (facility, debt_repayment)
+
+Utilisation       = drawn_amount / committed_amount
+Undrawn           = committed_amount - drawn_amount
+Liquidity         = cash + sum(available_amount)
+Liquidity cover   = liquidity / principal falling due in the next 12 months
+Arrears           = principal_amount - amount_paid
+Days past due     = (paid_date or today) - due_date
+
+Revenue growth   = (revenue_t - revenue_t-1) / revenue_t-1
+Change in leverage = leverage_t - leverage_t-1
+Free cash flow   = operating_cash_flow - capex
+Cash conversion  = operating_cash_flow / ebitda
 ```
