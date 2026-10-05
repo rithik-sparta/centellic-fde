@@ -50,7 +50,7 @@ def build_index() -> int:
         ids = [doc["id"] for doc in documents],
         embeddings = vectors,  # type: ignore
         documents = texts,
-        metadatas = [{"title" : doc["title"], "type" : doc["type"] } for doc in documents],
+        metadatas = [{"title" : doc["title"], "type" : doc["type"] , "date" : doc["date"]} for doc in documents],
     )
 
     return tokens
