@@ -45,7 +45,7 @@ def count() -> int:
 
 def build_index() -> int:
     """Embed every document and hand the vectors to chroma"""
-    texts = [doc["body"] for doc in documents]
+    texts = [doc["text"] for doc in documents]
     vectors, tokens = embed_texts(texts, input_type = "document")
     collection.upsert(
         ids = [doc["id"] for doc in documents],
