@@ -17,6 +17,14 @@ SYSTEM_PROMPT = (
     "Do not make calculations yourself, only rely on the data and tools provided."
 )
 
+GROUNDED_SYSTEM_PROMPT = (
+    "You are a credit analyst, Answer using ONLY the context provided"
+    "Cite the document id in square brackets after each claim, like [doc-001]."
+    "If the context does not contain the answer, say exactly: "
+    "'The provided documents do not answer that question.'"
+    "Never use knowledge from outside the context. Use British English. No em dash characters."
+)
+
 AGENT_SYSTEM_PROMPT = (
     "You are credit analyst with access to tools to assess a borrowers credit rating. Use the tool whenever a question needs "
     "information you don't already have - do not guess. Cite document ids in  "
@@ -33,15 +41,14 @@ TOOLS : dict[str,dict] = {
     "calculation_tool" : {}
 }
 
+# the loop - one call, check, maybe repeat
+MAX_ITERATIONS = 4
+
 client = anthropic.Anthropic(
     api_key=os.environ["ANTHROPIC_API_KEY"],
     timeout=30.0,
     max_retries=3,
 )
-
-
-# the loop - one call, check, maybe repeat
-MAX_ITERATIONS = 4
 
 
 def ask_with_tools(question: str) -> dict:
