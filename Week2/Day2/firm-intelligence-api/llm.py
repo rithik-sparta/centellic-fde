@@ -6,6 +6,8 @@ import anthropic
 from anthropic.types import TextBlock
 from pydantic import BaseModel, Field
 
+import grounding
+
 MODEL = "claude-haiku-4-5-20251001" 
 
 
@@ -27,6 +29,13 @@ SYSTEM_PROMPT = (
     "Use British English. Use only the figures given to you. "
     "Never invent numbers, rankings or facts that are not in the data provided."
 )
+
+# GROUNDED_SYSTEM_PROMPT = (
+#     "You are a legal market analyst. Answer using ONLY the context provided. "
+#     "Cite the document id in square brackets after each claim, like [doc-001]"
+#     f"If the context does not contain an answer, say exactly: '{grounding.REFUSAL_SENTENCE}'."
+#     "Never use knowledge from outside the context. Use British English. No em dash characters."
+# )
 
 
 def build_prompt(firm: dict) -> str:
@@ -126,15 +135,22 @@ GROUNDED_SYSTEM_PROMPT = (
     "Never use knowledge from outside the context. Use British English. No em dash characters."
 )
 
+GROUNDED_SYSTEM_PROMPT = (
+    "You are a legal market analyst. Answer using ONLY the context provided. "
+    "Cite the document id in square brackets after each claim, like [doc-001]"
+    f"If the context does not contain an answer, say exactly: '{grounding.REFUSAL_SENTENCE}'."
+    "Never use knowledge from outside the context. Use British English. No em dash characters."
+)
+
 # Notice where context goes
 # Rules in system
 # data in user
-def answer_from_context(question: str, context: str) -> dict:
+def answer_from_context(question: str, context: str, system: str = GROUNDED_SYSTEM_PROMPT) -> dict:
     """Answer strictly from retrieved context... The G part of RAG - Generating an answer."""
     response = client.messages.create(
         model = MODEL,
         max_tokens = 500,
-        system = GROUNDED_SYSTEM_PROMPT,
+        system = system,
         messages = [{
             "role" : "user",
             "content" : f"Context: \n\n{context}\n\nQuestion: {question}"
