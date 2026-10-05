@@ -120,9 +120,9 @@ def build_credit_memo_prompt(borrower : dict):
     prompt = "Create a draft credit memo for this borrower. Go over the borrower name, sector, and latest financial period statistics.\n"
     prompt += list_fields(borrower,["borrower_id", "name", "sector", "rating_agency", "credit_rating", "as_of_date", "internal_rating_rank", "archived"])
     if borrower["latest_period_id"] is not None:
-        fp = _get_financial_period(borrower["latest_financial_period"])
-        fp = cast(dict[str,Any],fp)
-        prompt += list_fields(fp, financial_period_fields)    
+        fp : dict | None = _get_financial_period(borrower["latest_period_id"])
+        if fp is not None:
+            prompt += list_fields(fp, financial_period_fields)    
     
     return prompt
     
