@@ -2,8 +2,8 @@
 from fastapi import APIRouter
 from agent import document_store as ds
 
+router = APIRouter(prefix = "/doc_store", tags=["doc_store"])
 
-router = APIRouter(prefix = "/borrowers", tags=["borrowers"])
 
 @router.post("/index")
 def rebuild_index():
