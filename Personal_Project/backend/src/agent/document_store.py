@@ -60,6 +60,8 @@ def build_index() -> int:
 # Chroma will give us back distance... lower is closer
 def search(question: str, top_k: int = 3) -> list[dict]:
     """Embed the question and let Chroma do the storing"""
+    if count() == 0:
+        raise RuntimeError("Index is empty - call index first.")
     query_vectors, _ = embed_texts([question], input_type="query")
     result = collection.query(query_embeddings = query_vectors, n_results = top_k) # type: ignore
     return [
