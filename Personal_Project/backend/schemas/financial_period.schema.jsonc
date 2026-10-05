@@ -24,6 +24,10 @@
     {"key_name": "ebitda_adjustments", "value_type": "number", "required": false, "description": "Net add-backs (positive) or deductions (negative) between reported and adjusted EBITDA. Leave None when ebitda_basis is reported" },
     {"key_name": "net_worth", "value_type": "number", "required": false, "description": "Net worth at period end; needed for net worth covenants"},
     
+    {"key_name": "net_income", "value_type": "number", "required": true, "description": "Net income at period end."},
+    {"key_name": "depreciation_amortisation", "value_type": "number", "required": true, "description": "Depreciation amortisation"},
+    {"key_name": "total_assets", "value_type": "number", "required": true, "description": "The total assets that a borrower has"},
+    
     
     {"key_name": "operating_cash_flow", "value_type": "number", "required": false, "description": "Operating cash flow for the period"},
     {"key_name": "capex", "value_type": "number", "required": false, "description": "Capital expenditure for the period"},
