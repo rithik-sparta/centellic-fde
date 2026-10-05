@@ -76,7 +76,7 @@ or hardcoded.
 ### 3. Vector database (Chroma with Voyage embeddings)
 
 - [X] A persistent Chroma collection.
-- [ ] A manual index endpoint that embeds your documents and upserts them by id.
+- [X] A manual index endpoint that embeds your documents and upserts them by id.
 - [ ] A search-only endpoint that returns the top results with their scores.
 - [ ] A grounded question answering endpoint. It must cite the documents it used, and it must refuse
   without calling the LLM when no result clears a relevance floor that you choose and justify.
