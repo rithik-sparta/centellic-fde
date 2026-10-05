@@ -1,0 +1,12 @@
+.venv
+.DS_Store
+project_notes.md
+.env
+# Python bytecode / cache
+__pycache__/
+*.py[cod]
+
+# pytest
+.pytest_cache/
+*.zip
+.claude/
