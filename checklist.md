@@ -36,7 +36,7 @@
 * [X] **Your own data model.** Different entities, fields and filters. No "revenue per lawyer"
   style calculation copied across.
 * [ ] **Your own extra tool.** The agent has a tool that is not a document search.
-* [ ] **Your own analysis schema.** The structured output has fields specific to your domain.
+* [X] **Your own analysis schema.** The structured output has fields specific to your domain.
 * [ ] **Your own refusal rule.** Decide what the system should not answer, and prove it in a test.
 * [X] **One time-sensitive or risk-sensitive element.** For example document dates, limits and
   thresholds, or a human-in-the-loop rule.
@@ -45,7 +45,7 @@
 ## Deliverables
 
 - [ ] The API project and the UI project, each runnable from its README.
-- [ ] Your synthetic data and documents.
+- [X] Your synthetic data and documents.
 - [ ] The one page design note.
 - [ ] A live demo of at least one question the agent answers using both tools, and one question it
   correctly refuses.
@@ -68,7 +68,7 @@ or hardcoded.
 
 - [X] A plain summary endpoint for one of your records.
 - [X] A streaming version of that summary, so text reaches the client as it is generated.
-- [ ] A structured analysis endpoint whose output is validated against a Pydantic model of your own
+- [X] A structured analysis endpoint whose output is validated against a Pydantic model of your own
   design. It must return typed fields, not free text.
 - [X] Prompts that keep rules in the system prompt and data in the user message.
 - [ ] A token estimate endpoint or token counts returned with every generated answer.
@@ -77,7 +77,7 @@ or hardcoded.
 
 - [X] A persistent Chroma collection.
 - [X] A manual index endpoint that embeds your documents and upserts them by id.
-- [ ] A search-only endpoint that returns the top results with their scores.
+- [X] A search-only endpoint that returns the top results with their scores.
 - [ ] A grounded question answering endpoint. It must cite the documents it used, and it must refuse
   without calling the LLM when no result clears a relevance floor that you choose and justify.
 - [X] At least 8 documents of realistic prose in your domain.
