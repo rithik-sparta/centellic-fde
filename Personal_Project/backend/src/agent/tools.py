@@ -28,7 +28,8 @@ class DocumentSearchTool:
         
         return schema
         
-    def get_context(self, question: str, top_k: int = 3) -> tuple[str,bool]:
+    @classmethod
+    def get_context(cls, question: str, top_k: int = 3) -> tuple[str,bool]:
         try:
             results = search(question, top_k)
             
