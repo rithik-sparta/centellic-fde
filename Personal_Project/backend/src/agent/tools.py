@@ -1,4 +1,5 @@
 from decimal import Decimal, InvalidOperation
+import json
 from typing import Any, Callable, Optional
 import functools
 import inspect
@@ -7,15 +8,11 @@ from agent.document_store import count, build_index, search
 from data.records import borrowers, assessments, debt_repayments, covenant_tests, facilities, lending_policies, covenants, financial_periods
 
 class DocumentSearchTool:
-    
-    def __init__(self, relevance_floor, top_k=3):
-        self.relevance_floor = relevance_floor
-        self.top_k = top_k
         
         
-    def get_context(self, question: str) -> tuple[str,bool]:
+    def get_context(self, question: str, top_k: int = 3) -> tuple[str,bool]:
         try:
-            results = search(question, self.top_k)
+            results = search(question, top_k)
             
         except RuntimeError as e:
             return f"Error: {e}", True
@@ -33,25 +30,31 @@ class DocumentSearchTool:
     
     
 class RecordSearchTool:
-    
-    def __init__(self, borrower_id : str):
-        self.borrower_id = borrower_id
-        self.records = {
-            "borrowers" : borrowers,
-            "facilities" : facilities,
-            "covenants" : covenants,
-            "lending_policies" : lending_policies,
-            "debt_repayments" : debt_repayments,
-            "financial_periods" : financial_periods,
-            "covenant_tests" : covenant_tests,
-            "assessments" : assessments,
-        }
+    records = {
+                "borrowers" : borrowers,
+                "facilities" : facilities,
+                "covenants" : covenants,
+                "lending_policies" : lending_policies,
+                "debt_repayments" : debt_repayments,
+                "financial_periods" : financial_periods,
+                "covenant_tests" : covenant_tests,
+                "assessments" : assessments,
+            }
         
-    def _get_records(self, entity_name : str, filter_condition: Optional[Callable[[dict],bool]]) -> list[dict]:
-        records = [r for r in self.records[entity_name] if (r.get("borrower_id")==self.borrower_id)]
+    @classmethod
+    def get_records(cls, entity_name : str, borrower_id : str | None, filter_condition: Optional[Callable[[dict],bool]] = lambda x : True) -> tuple[str,bool]:
+        """Get records of a particular entity, filtering by the borrower_id if applicable."""
+        if "borrower_id" in cls.records[entity_name] and borrower_id is None:
+            return "Please provide a borrower_id to filter against.", False
+        records = [r for r in cls.records[entity_name] if (("borrower_id" not in r) or (r.get("borrower_id")==borrower_id))]
         if filter_condition is not None:
             records = [r for r in records if filter_condition(r)]
-        return records
+        formatted = f"{entity_name.capitalize()}\n"
+        formatted += "\n\n".join([
+            "\n".join([f"{field} : {value}" for field, value in r.items()]) for r in records]
+                              )
+        return formatted, True
+
 
 class CalculationError(ValueError):
     """Invalid input. Converted into {"ok": False, "error": ...} for the LLM."""
@@ -87,7 +90,7 @@ def _jsonable(value: Any) -> Any:
         return [_jsonable(v) for v in value]
     return value
  
- 
+ # Set of function names
 _REGISTRY: set[str] = set()
  
  
@@ -266,10 +269,21 @@ class CalculationTool:
             })
         return out
  
-    def run(self, name: str, arguments: dict) -> dict:
-        """Dispatch a tool call from the LLM. Always returns a JSON-serialisable dict."""
+    def run(self, name: str, arguments: dict) -> tuple[str, bool]:
+        """Dispatch a tool call from the LLM.
+ 
+        Returns (content, is_error). On success content is the JSON-encoded result
+        and is_error is False. On failure content is the error message and
+        is_error is True.
+        """
         tools = self._tools()
         if name not in tools:
-            return {"ok": False, "error": f"Unknown tool '{name}'. Available: {sorted(tools)}"}
-        return getattr(self, name)(**(arguments or {}))
+            return f"Unknown tool '{name}'. Available: {sorted(tools)}", True
+        try:
+            result = getattr(self, name)(**(arguments or {}))
+        except Exception as e:  # defensive: the wrapper already handles expected errors
+            return f"Unexpected error in '{name}': {e}", True
+        if not result["ok"]:
+            return result["error"], True
+        return json.dumps(result["value"]), False
  
