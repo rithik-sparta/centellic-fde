@@ -59,6 +59,28 @@ class RecordSearchTool:
                 "covenant_tests" : covenant_tests,
                 "assessments" : assessments,
             }
+    
+    @classmethod
+    def schema(cls) -> dict:
+        schema = {
+            "name": "search_records",
+            "description": (
+                "Search the records for entities that meet a provided filter condition."
+                "If the entity contains fields with borrower_id, it must provide the borrower_id of records it wishes to search for."
+            ),
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "entity_name": {"type": "string", "description": f"The name of the entity to search across. One of {"".join(cls.records.keys())}"},
+                    "borrower_id": {"type": "string", "description": "The borrower_id of the records you wish to search across. If the entity contains a borrower_id field, this field must be included."},
+                    "filter_condition": {"type": "function", "description": "The filter condition to filter records. If a function is provided it must take a python dict and return a boolean value. Otherwise all valid records are returned."}
+                    },
+                "required": ["entity_name"],
+                },
+            }
+        
+        return schema
+    
         
     @classmethod
     def get_records(cls, entity_name : str, borrower_id : str | None, filter_condition: Optional[Callable[[dict],bool]] = lambda x : True) -> tuple[str,bool]:
