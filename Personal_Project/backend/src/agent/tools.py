@@ -8,7 +8,25 @@ from agent.document_store import count, build_index, search
 from data.records import borrowers, assessments, debt_repayments, covenant_tests, facilities, lending_policies, covenants, financial_periods
 
 class DocumentSearchTool:
+    
+    @classmethod
+    def schema(cls) -> dict:
+        schema = {
+            "name": "search_document_store",
+            "description": (
+                "Search the credit analysis document store for documents relevant "
+                "to a question about borrowers, outlooks, credit-memos and sector outlooks."
+            ),
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "The search query"},
+                    },
+                "required": ["query"],
+                },
+            }
         
+        return schema
         
     def get_context(self, question: str, top_k: int = 3) -> tuple[str,bool]:
         try:
