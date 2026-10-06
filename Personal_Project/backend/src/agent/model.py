@@ -1,8 +1,6 @@
 # File to hold information about models, tools and prompts used.
-import os
 from typing import cast
 import anthropic
-import dotenv
 from agent import document_store
 from anthropic.types import MessageParam, ToolUnionParam
 from config import ANTHROPIC_API_KEY, MODEL
