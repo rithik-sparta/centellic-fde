@@ -4,9 +4,12 @@ from anthropic import APIStatusError, APITimeoutError, RateLimitError
 from fastapi import APIRouter, Depends, Header, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-from utils import _create_new_id
+from utils import _create_new_id, Question
 from agent import summarise_borrower as sb
 from agent import analyse_borrower as ab
+from agent import document_store as ds
+from agent import model as mdl
+from config import RELEVANCE_FLOOR
 
 from data.records import borrowers
 
@@ -149,3 +152,59 @@ def credit_assessment(borrower : dict = Depends(get_borrower_or_404)):
         print(e.message)
         raise HTTPException(status_code = 502, detail = "Analysis provider unavailable")
     
+@router.post("/ask")
+def ask(q : Question):
+    """Retrieve, then answer using only what was retrieved... or refuse"""
+    # 1. Retrieve
+    # same call as /knowledge/search
+    try:
+        hits = ds.search(q.question, q.top_k)
+        
+    except RuntimeError as e:
+        raise HTTPException(status_code= 409, detail = str(e))
+    
+    
+    # 2. Filter, and decide whether to make a call to the model at all.
+    # compare against our RELEVANCE_FLOOR
+    usable = [hit for hit in hits if hit["score"] >= RELEVANCE_FLOOR]
+    
+    if not usable:
+        return {
+            "question" : q.question,
+            "answer" : None,
+            "refused" : True,
+            "reason" : "No document in the corpus is relevant to that question.",
+            "sources" : []
+        }
+    
+    # 3. Generation, Build context and generate the answer
+    context = "\n\n".join(f"[{h['id']}] {h['title']}\n{h['text']}" for h in usable)
+    print(len(context), repr(context[:100]))
+    
+    try:
+        result = mdl.answer_from_context(q.question,context=context)
+    except APITimeoutError as e:
+        print(e.message)
+        raise HTTPException(status_code = 504, detail = "Answer provider timed out")
+    except RateLimitError as e:
+        print(e.message)
+        raise HTTPException(status_code = 429, detail = "Answer provider rate limited")
+    except APIStatusError as e:
+        print(e.message)
+        raise HTTPException(status_code = 502, detail = "Answer provider unavailable")
+        
+    # Structure format if the output will be given to another application
+    # 4. Return the succesful answer
+    # Natural language when the output will be given to a person.
+    return {
+            "question" : q.question,
+            "answer" : result["answer"],
+            "refused" : False,
+            "reason" : None,
+            "sources" : [{"id" : h["id"], 
+                          "title" : h["title"], 
+                          "score" : round(h["score"],3)} for h in usable],
+            "input_tokens" : result["input_tokens"], 
+            "output_tokens" : result["output_tokens"], 
+            "stop_reason" : result["stop_reason"]
+    }

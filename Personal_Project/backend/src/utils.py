@@ -1,3 +1,5 @@
+from pydantic import BaseModel, Field
+
 # helper function to generate a new id
 def _create_new_id(entity_records, id_key, prefix):
     new_val = 0
@@ -26,3 +28,6 @@ def list_all_data(entity_name : str, entity_id_name : str, result_collection : l
         output += "\n"
     return output
     
+class Question(BaseModel):
+    question : str = Field(min_length=3)
+    top_k : int = Field(default=3, gt=0, le=8)
