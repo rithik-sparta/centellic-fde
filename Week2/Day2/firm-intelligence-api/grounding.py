@@ -9,7 +9,7 @@ import re
 REFUSAL_SENTENCE = "The provided documents do not answer that question."
 
 # The find all will return doc-001 rather than [doc-001]
-CITATION = re.compile(r"\[doc-\d{3}]\]")
+CITATION = re.compile(r"\[(doc-\d{3})\]")
 
 # normalise - lower-case and squash every run of spaces, tabs/newlines into one space.
     # we need this as models sometimes wrap lines... so without normalise a refusal 
@@ -58,6 +58,7 @@ def check_citations(answer: str | None, source_ids: list[str]) -> dict:
     
     sentences = split_sentences(answer)
     cited = sorted(set(citations_in(answer)))
+    print(cited,source_ids)
     invalid = [doc_id for doc_id in cited if doc_id not in source_ids]
     # Very short sentences ("Yes." or "In Summmary:") are claims not worth policing
     uncited = [s for s in sentences if not CITATION.search(s) and len(s.split()) >= 3]
@@ -67,7 +68,7 @@ def check_citations(answer: str | None, source_ids: list[str]) -> dict:
         "cited" : cited,
         "invalid" : invalid,
         "uncited_sentences" : uncited,
-        "passed": not invalid and not cited
+        "passed": not invalid and not uncited
     }
 
 # create tests
