@@ -17,7 +17,7 @@ SYSTEM_PROMPT = (
 
 GROUNDED_SYSTEM_PROMPT = (
     "You are a credit analyst, Answer using ONLY the context provided"
-    "Cite the document id in square brackets after each claim, like [doc-001]."
+    "Cite the document id in square brackets after each claim, like [doc-01]."
     "If the context does not contain the answer, say exactly: "
     "'The provided documents do not answer that question.'"
     "Never use knowledge from outside the context. Use British English. No em dash characters."
@@ -47,6 +47,25 @@ client = anthropic.Anthropic(
     timeout=30.0,
     max_retries=3,
 )
+
+def answer_from_context(question: str, context: str) -> dict:
+    """Answer strictly from retrieved context... The G part of RAG - Generating an answer."""
+    response = client.messages.create(
+        model = MODEL,
+        max_tokens = 500,
+        system = GROUNDED_SYSTEM_PROMPT,
+        messages = [{
+            "role" : "user",
+            "content" : f"Context: \n\n{context}\n\nQuestion: {question}"
+        }],
+    )
+    
+    return {
+        "answer" : response.content[0].text, # type: ignore
+        "input_tokens" : response.usage.input_tokens,
+        "output_tokens" : response.usage.output_tokens,
+        "stop_reason" : response.stop_reason
+    }
 
 
 def ask_with_tools(question: str) -> dict:
