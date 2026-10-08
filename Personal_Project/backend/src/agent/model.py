@@ -39,8 +39,6 @@ TOOLS : dict[str,dict] = {
     "run_calculation" : CalculationTool.schema() 
 }
 
-# the loop - one call, check, maybe repeat
-MAX_ITERATIONS = 4
 
 client = anthropic.Anthropic(
     api_key=ANTHROPIC_API_KEY,
@@ -68,6 +66,8 @@ def answer_from_context(question: str, context: str) -> dict:
     }
 
 
+# the loop - one call, check, maybe repeat
+MAX_ITERATIONS = 4
 def ask_with_tools(question: str) -> dict:
     """Run the tool-use loop until the model answers, orrrr the limit is hit"""
     messages : list[MessageParam] = [{"role": "user", "content": question}]
