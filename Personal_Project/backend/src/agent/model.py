@@ -138,28 +138,26 @@ def _execute_tool(name: str, tool_input: dict) -> tuple[str,bool]:
     if name not in TOOLS.keys():
         return f"Unknown tool: {name}", True
     
-    if name == "document_search_tool":
+    if name == "search_document_store":
         # Guard 2 - Even the right tool is usesless without its one argument. If we do not have a query, how does the agent know what to answer?
         if "query" not in tool_input:
             return 'Error: missing required field "query"', True
-
-        try:
-            results = document_store.search(tool_input["query"], top_k=3)
-        except RuntimeError as e:
-            return f"Error: {e}", True
-        # Same RuntimeError that knowledge.search has always raised
-        # it gets caught here instead of letting it crash the whole agent loop
-
-        # Guard 3 - A search that worked but there are no documents. The is_error is False here.
-        # This is an honest empty result, nothing went wrong here, just there was nothing relevant.
-        if not results:
-            return "No relevant documents found", False
-
-
-        formatted = "\n\n".join(
-                f"[{r['id']}] {r['title']} (score {r['score']:.2f})\n{r['text']}"
-                for r in results
-        )
-        # real success path - genuine results, formatted for the model to read.
-        return formatted, False
-    return "", False
+        
+        result_text, is_error = DocumentSearchTool.get_context(tool_input["query"])
+        
+        return result_text, is_error
+    
+    elif name == "search_records":
+        if "entity_name" not in tool_input:
+            return 'Error, missing required field "entity_name"', True
+        result_text, is_error = RecordSearchTool.get_records(tool_input["entity_name"],tool_input["borrower_id"])
+        return result_text, is_error
+    elif name == "calculation_tool":
+        if "name" not in tool_input:
+            return 'Error: missing required field "name"', True
+        if "arguments" not in tool_input:
+            return 'Error: missing required field "argument"', True
+        result_text, is_error = CalculationTool.run(tool_input["name"], tool_input["arguments"])
+        return result_text, is_error
+    else:
+        return f'Error: Unknown method "{name}"', True
