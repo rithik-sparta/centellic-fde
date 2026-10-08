@@ -3,6 +3,7 @@ from typing import cast
 import anthropic
 from agent import document_store
 from anthropic.types import MessageParam, ToolUnionParam
+from agent.tools import DocumentSearchTool, RecordSearchTool, CalculationTool
 from config import ANTHROPIC_API_KEY, MODEL
 
 
@@ -32,9 +33,9 @@ AGENT_SYSTEM_PROMPT = (
 )
 
 TOOLS : dict[str,dict] = {
-    "document_search_tool" : {},
-    "record_search_tool" : {},
-    "calculation_tool" : {}
+    "search_document_store" : DocumentSearchTool.schema(),
+    "search_records" : RecordSearchTool.schema(),
+    "run_calculation" : CalculationTool.schema() 
 }
 
 # the loop - one call, check, maybe repeat
