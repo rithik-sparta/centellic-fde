@@ -71,7 +71,7 @@ or hardcoded.
 - [X] A structured analysis endpoint whose output is validated against a Pydantic model of your own
   design. It must return typed fields, not free text.
 - [X] Prompts that keep rules in the system prompt and data in the user message.
-- [ ] A token estimate endpoint or token counts returned with every generated answer.
+- [X] A token estimate endpoint or token counts returned with every generated answer.
 
 ### 3. Vector database (Chroma with Voyage embeddings)
 
@@ -85,7 +85,7 @@ or hardcoded.
 ### 4. Agent (tool use)
 
 - [ ] An agent loop with a hard iteration limit and a clear result when the limit is reached.
-- [ ] A knowledge search tool, plus **at least one more tool of your own** that works on your
+- [X] A knowledge search tool, plus **at least one more tool of your own** that works on your
   structured records or computes something (see the domain options for ideas).
 - [ ] Safe tool execution: unknown tools, missing arguments and tool failures are reported back to
   the model as errors, not raised as crashes.
