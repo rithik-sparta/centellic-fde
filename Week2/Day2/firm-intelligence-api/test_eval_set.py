@@ -22,7 +22,7 @@ def test_ids_are_unique():
     assert len(ALL_DOCS) == (len(DOCUMENTS) + len(CORPUS_DOCUMENTS))
     
 # test every span is in its documents
-def test_every_span_is_in_its_documents():
+def test_every_evidence_span_is_in_its_documents():
     for eval in answerable():
         print(eval["id"])
         print(eval["evidence"])
@@ -30,10 +30,17 @@ def test_every_span_is_in_its_documents():
         assert contains_evidence(ALL_DOCS[eval["doc_id"]]["body"], eval["evidence"]) == True
 
 # test every evidence span appears exactly once in the whole corpus
-# def test_every_evidence_span_appears_exactly_once_in_the_whole_corpus():
-#     CORPUS_TEXT = "\n\n\n".join(doc["body"] for _,doc in ALL_DOCS.items())
-#     for evidence in EVAL_SET:
-#         assert len(re.findall(evidence["evidence"], CORPUS_TEXT)) == 1
-        
+# test every evidence span appears exactly once in the whole corpus
+def test_every_evidence_span_appears_exactly_once_in_the_whole_corpus():
+    for q in answerable():
+        total = sum(normalise(d["body"]).count(normalise(q["evidence"])) for d in ALL_DOCS.values())
+        assert total == 1, f"{q['id']} evidence appears {total} times"
 
-# test_keyword matching in whole word and refusal aware
+# test keyword matching in whole word and refusal aware
+def test_keyword_matching_is_whole_word_and_refusal_aware():
+    assert keywords_present("There are no outstanding matters [doc-104].", ["no|none"])
+    assert not keywords_present("The provided documents do not answer that question.", ["no|none"])
+    assert not keywords_present("Revenue was 120 million.", ["12"])
+    assert keywords_present("They are excluded [doc-107].", ["exclud*"])
+    assert keywords_present("Offices in Lagos and Nairobi.", ["Lagos", "Nairobi"])
+    assert not keywords_present("An office in Lagos.", ["Lagos", "Nairobi"])
