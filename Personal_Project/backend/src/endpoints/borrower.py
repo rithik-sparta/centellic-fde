@@ -9,7 +9,7 @@ from agent import summarise_borrower as sb
 from agent import analyse_borrower as ab
 from agent import document_store as ds
 from agent import model as mdl
-from config import RELEVANCE_FLOOR
+from config import MODEL, RELEVANCE_FLOOR
 
 from data.records import borrowers
 
@@ -130,13 +130,13 @@ def stream_summarise(borrower: Annotated[dict, Depends(get_borrower_or_404)]):
         media_type="text/plain",
     )
 
-@router.post("/{borrower_id}/estimate_summary_prompt")
+@router.post("/{borrower_id}/summary/estimate")
 def estimate_summary_prompt(borrower : dict = Depends(get_borrower_or_404)):
-    return sb.estimate_input_tokens(borrower, sb.build_prompt)
+    return mdl.estimate_input_tokens(borrower, MODEL, mdl.SYSTEM_PROMPT, sb.build_prompt)
 
-@router.post("/{borrower_id}/estimate_credit_memo_prompt")
+@router.post("/{borrower_id}/stream_summary/estimate")
 def estimate_credit_memo_prompt(borrower : dict = Depends(get_borrower_or_404)):
-    return sb.estimate_input_tokens(borrower, sb.build_credit_memo_prompt)
+    return mdl.estimate_input_tokens(borrower, MODEL, mdl.SYSTEM_PROMPT, sb.build_credit_memo_prompt)
 
 @router.post("/{borrower_id}/credit_assessment")
 def credit_assessment(borrower : dict = Depends(get_borrower_or_404)):
@@ -151,6 +151,11 @@ def credit_assessment(borrower : dict = Depends(get_borrower_or_404)):
     except APIStatusError as e:
         print(e.message)
         raise HTTPException(status_code = 502, detail = "Analysis provider unavailable")
+    
+@router.post("/{borrower_id}/credit_assessment/estimate")
+def estimate_credit_assessment_prompt(borrower : dict = Depends(get_borrower_or_404)):
+    return mdl.estimate_input_tokens(borrower, MODEL, mdl.SYSTEM_PROMPT, ab.build_credit_assessment_prompt)
+
     
 @router.post("/ask")
 def ask(q : Question):

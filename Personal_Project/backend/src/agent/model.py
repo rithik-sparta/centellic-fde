@@ -1,5 +1,5 @@
 # File to hold information about models, tools and prompts used.
-from typing import cast
+from typing import Callable, cast
 import anthropic
 from agent import document_store
 from anthropic.types import MessageParam, ToolUnionParam
@@ -45,6 +45,17 @@ client = anthropic.Anthropic(
     timeout=30.0,
     max_retries=3,
 )
+
+def estimate_input_tokens(borrower: dict, model : str, system_prompt : str, prompt_builder : Callable[[dict],str]) -> int:
+    """Count tokens BEFORE sending, Costs nothing, tells you what a call will cost"""
+
+    counted = client.messages.count_tokens(
+        model = model,
+        system = system_prompt,
+        messages=[{"role":"user","content": prompt_builder(borrower)}],
+
+    )
+    return counted.input_tokens
 
 def answer_from_context(question: str, context: str) -> dict:
     """Answer strictly from retrieved context... The G part of RAG - Generating an answer."""

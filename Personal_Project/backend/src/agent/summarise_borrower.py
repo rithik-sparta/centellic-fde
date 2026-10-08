@@ -150,18 +150,6 @@ def summarise_borrower(borrower: dict) -> dict:
         "output_tokens": response.usage.output_tokens,
         "stop_reason": response.stop_reason
     }
-    
-    
-def estimate_input_tokens(borrower: dict, prompt_builder : Callable[[dict],str]) -> int:
-    """Count tokens BEFORE sending, Costs nothing, tells you what a call will cost"""
-
-    counted = client.messages.count_tokens(
-        model = MODEL,
-        system = SYSTEM_PROMPT,
-        messages=[{"role":"user","content": prompt_builder(borrower)}],
-
-    )
-    return counted.input_tokens
 
 
 def stream_borrower_summary(borrower: dict):
