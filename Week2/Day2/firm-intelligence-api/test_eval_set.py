@@ -2,7 +2,7 @@ import re
 
 from corpus import CORPUS_DOCUMENTS
 from documents import DOCUMENTS
-from eval_set import EVAL_SET, answerable
+from eval_set import answerable
 from eval_tools import contains_evidence, keywords_present, normalise
 
 ALL_DOCS = {d["id"] : d for d in DOCUMENTS + CORPUS_DOCUMENTS}
