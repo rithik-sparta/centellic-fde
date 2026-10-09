@@ -1,11 +1,10 @@
+from datetime import datetime
 from typing import Annotated
 
+from data.records import assessments
 from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel, Field
-from datetime import datetime
 from utils import _create_new_id
-
-from data.records import assessments
 
 _seen_keys : dict[str,dict] = {}
 router = APIRouter(prefix = "/assessments", tags=["assessments"])
@@ -51,7 +50,7 @@ def get_assessment_or_404(assessment_id: str) -> dict:
     
 
 @router.get("")
-def get_assessments(borrower_id : str | None, assessed_after : str | None, assessed_before : str | None):
+def get_assessments(borrower_id : str | None = None, assessed_after : str | None = None, assessed_before : str | None = None):
     answer = assessments
     # Filter assessments by borrower
     if borrower_id is not None:

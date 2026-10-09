@@ -1,17 +1,17 @@
 from typing import Annotated
 
-from anthropic import APIStatusError, APITimeoutError, RateLimitError
-from fastapi import APIRouter, Depends, Header, HTTPException
-from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, Field
-from utils import _create_new_id, Question
-from agent import summarise_borrower as sb
 from agent import analyse_borrower as ab
 from agent import document_store as ds
 from agent import model as mdl
+from agent import summarise_borrower as sb
+from anthropic import APIStatusError, APITimeoutError, RateLimitError
 from config import MODEL, RELEVANCE_FLOOR
-
+from data import records
 from data.records import borrowers
+from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel, Field
+from utils import Question, _create_new_id, _delete_helper
 
 router = APIRouter(prefix = "/borrowers", tags=["borrowers"])
 _seen_keys : dict[str,dict] = {}
@@ -24,7 +24,6 @@ class NewBorrower(BaseModel):
     as_of_date : str | None = Field(min_length=1)
     internal_rating_rank : int | None = Field(None,ge=1,lt=23)
     latest_period_id : str | None = Field(None, min_length=4)
-    deleted : bool = Field(default=False)
 
 class UpdateBorrower(BaseModel):
     name : str | None = Field(None, min_length=1)
@@ -34,12 +33,11 @@ class UpdateBorrower(BaseModel):
     as_of_date : str | None = Field(min_length=1)
     internal_rating_rank : int | None = Field(None, ge=1, lt=23)
     latest_period_id : str | None = Field(None, min_length=4)
-    deleted : bool | None = Field(None)
     
 def get_borrower_or_404(borrower_id: str) -> dict:
     for borrower in borrowers:
         
-        if (borrower["borrower_id"] == borrower_id) and (not borrower["deleted"]):
+        if (borrower["borrower_id"] == borrower_id):
             return borrower
     raise HTTPException(404, f"No borrower with id {borrower_id}.")
 
@@ -83,8 +81,7 @@ def add_borrower(new : NewBorrower, idempotency_key: str | None = Header(default
         "credit_rating": new.credit_rating,
         "as_of_date": new.as_of_date,
         "internal_rating_rank": new.internal_rating_rank,
-        "latest_period_id": new.latest_period_id,
-        "deleted": new.deleted,
+        "latest_period_id": new.latest_period_id
     }
     
     borrowers.append(borrower)
@@ -103,10 +100,18 @@ def update_borrower(borrower : dict = Depends(get_borrower_or_404), to_update: U
     borrower.update(updates)
     return borrower
 
-# We want to track borrowers we previously had, to ensure record history is consistent. We just no longer report on it.
+
+
 @router.delete("/{borrower_id}", status_code = 204)
 def delete_borrower(borrower : dict = Depends(get_borrower_or_404)):
-    borrower["deleted"] = True
+    borrower_id = borrower["borrower_id"]
+    _delete_helper(records.facilities,borrower_id)
+    _delete_helper(records.debt_repayments,borrower_id)
+    _delete_helper(records.financial_periods,borrower_id)
+    _delete_helper(records.covenant_tests,borrower_id)
+    _delete_helper(records.assessments,borrower_id)
+    _delete_helper(records.borrowers,borrower_id)
+    
 
 
 @router.post("/{borrower_id}/summary")

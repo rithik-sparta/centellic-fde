@@ -1,11 +1,22 @@
-from decimal import Decimal, InvalidOperation
-import json
-from typing import Any, Callable, Optional
 import functools
 import inspect
+import json
+from decimal import Decimal, InvalidOperation
+from typing import Any, Callable, Optional
 
-from agent.document_store import count, build_index, search
-from data.records import borrowers, assessments, debt_repayments, covenant_tests, facilities, lending_policies, covenants, financial_periods
+from data.records import (
+    assessments,
+    borrowers,
+    covenant_tests,
+    covenants,
+    debt_repayments,
+    facilities,
+    financial_periods,
+    lending_policies,
+)
+
+from agent.document_store import search
+
 
 class DocumentSearchTool:
     
@@ -83,7 +94,7 @@ class RecordSearchTool:
     
         
     @classmethod
-    def get_records(cls, entity_name : str, borrower_id : str | None, filter_condition: Optional[Callable[[dict],bool]] = lambda x : True) -> tuple[str,bool]:
+    def get_records(cls, entity_name : str, borrower_id : str | None, filter_condition: Callable[[dict],bool] | None = lambda x : True) -> tuple[str,bool]:
         """Get records of a particular entity, filtering by the borrower_id if applicable."""
         if "borrower_id" in cls.records[entity_name] and borrower_id is None:
             return "Please provide a borrower_id to filter against.", False

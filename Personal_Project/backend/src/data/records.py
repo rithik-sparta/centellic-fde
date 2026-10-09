@@ -3,7 +3,6 @@
 
 from typing import Any
 
-
 borrowers : list[dict[str,Any]] = [
     {'borrower_id': 'b-01',
      'name': 'Northbridge Components Ltd',
@@ -12,8 +11,7 @@ borrowers : list[dict[str,Any]] = [
      'credit_rating': 'BB',
      'as_of_date': '30-06-2026',
      'internal_rating_rank': 8,
-     'latest_period_id': 'fp-01',
-     'deleted': False},
+     'latest_period_id': 'fp-01'},
     {'borrower_id': 'b-02',
      'name': 'Calder Food Retail Ltd',
      'sector': 'Retail',
@@ -21,8 +19,7 @@ borrowers : list[dict[str,Any]] = [
      'credit_rating': 'BB-',
      'as_of_date': '30-06-2026',
      'internal_rating_rank': 10,
-     'latest_period_id': 'fp-02',
-     'deleted': False},
+     'latest_period_id': 'fp-02'},
     {'borrower_id': 'b-03',
      'name': 'Westmoor Renewables Ltd',
      'sector': 'Energy',
@@ -30,8 +27,7 @@ borrowers : list[dict[str,Any]] = [
      'credit_rating': 'BBB',
      'as_of_date': '30-06-2026',
      'internal_rating_rank': 6,
-     'latest_period_id': 'fp-03',
-     'deleted': False},
+     'latest_period_id': 'fp-03'},
     {'borrower_id': 'b-04',
      'name': 'Harbourview Care Services Ltd',
      'sector': 'Healthcare',
@@ -39,8 +35,7 @@ borrowers : list[dict[str,Any]] = [
      'credit_rating': 'BBB-',
      'as_of_date': '30-06-2026',
      'internal_rating_rank': 7,
-     'latest_period_id': 'fp-04',
-     'deleted': False},
+     'latest_period_id': 'fp-04'},
     {'borrower_id': 'b-05',
      'name': 'Oakridge Logistics Group Ltd',
      'sector': 'Transport',
@@ -48,8 +43,7 @@ borrowers : list[dict[str,Any]] = [
      'credit_rating': None,
      'as_of_date': None,
      'internal_rating_rank': 12,
-     'latest_period_id': 'fp-05',
-     'deleted': False},
+     'latest_period_id': 'fp-05'},
     {'borrower_id': 'b-06',
      'name': 'Merefield Leisure Holdings Ltd',
      'sector': 'Leisure',
@@ -57,8 +51,7 @@ borrowers : list[dict[str,Any]] = [
      'credit_rating': 'B-',
      'as_of_date': '30-06-2026',
      'internal_rating_rank': 17,
-     'latest_period_id': 'fp-06',
-     'deleted': False},
+     'latest_period_id': 'fp-06'},
     {'borrower_id': 'b-07',
      'name': 'Aldergate Business Solutions Ltd',
      'sector': 'Business Services',
@@ -66,8 +59,7 @@ borrowers : list[dict[str,Any]] = [
      'credit_rating': None,
      'as_of_date': None,
      'internal_rating_rank': None,
-     'latest_period_id': 'fp-07',
-     'deleted': False}
+     'latest_period_id': 'fp-07'}
 ]
 
 facilities : list[dict[str,Any]] = [
