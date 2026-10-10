@@ -11,7 +11,7 @@ from data.records import borrowers
 from fastapi import APIRouter, Depends, Header, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-from utils import Question, _create_new_id, _delete_helper
+from utils import Question, _create_new_id, _delete_helper, ddmmyyyyDate
 
 router = APIRouter(prefix = "/borrowers", tags=["borrowers"])
 _seen_keys : dict[str,dict] = {}
@@ -21,7 +21,7 @@ class NewBorrower(BaseModel):
     sector : str = Field(min_length=1)
     rating_agency : str | None = Field(None, min_length=1)
     credit_rating : str | None = Field(None, min_length=1)
-    as_of_date : str | None = Field(min_length=1)
+    as_of_date : ddmmyyyyDate | None = Field(default=None)
     internal_rating_rank : int | None = Field(None,ge=1,lt=23)
     latest_period_id : str | None = Field(None, min_length=4)
 
@@ -30,7 +30,7 @@ class UpdateBorrower(BaseModel):
     sector : str | None = Field(None, min_length=1)
     rating_agency : str | None = Field(None, min_length=1)
     credit_rating : str | None = Field(None, min_length=1)
-    as_of_date : str | None = Field(min_length=1)
+    as_of_date : ddmmyyyyDate | None = Field(default=None)
     internal_rating_rank : int | None = Field(None, ge=1, lt=23)
     latest_period_id : str | None = Field(None, min_length=4)
     
@@ -128,6 +128,14 @@ def summarise(borrower: dict = Depends(get_borrower_or_404)):
         print(e.message)
         raise HTTPException(status_code = 502, detail = "Summary provider unavailable")
     
+@router.get("/{borrower_id}/summary/estimate")
+def estimate_summary_prompt(borrower : dict = Depends(get_borrower_or_404)):
+    return {
+        "id" : borrower["borrower_id"],
+        "estimated_input_tokens" : mdl.estimate_input_tokens(borrower, MODEL, mdl.SYSTEM_PROMPT, sb.build_prompt),
+        "model" : MODEL
+    }
+    
 @router.post("/{borrower_id}/stream_summary")
 def stream_summarise(borrower: Annotated[dict, Depends(get_borrower_or_404)]):
     return StreamingResponse(
@@ -135,13 +143,13 @@ def stream_summarise(borrower: Annotated[dict, Depends(get_borrower_or_404)]):
         media_type="text/plain",
     )
 
-@router.post("/{borrower_id}/summary/estimate")
-def estimate_summary_prompt(borrower : dict = Depends(get_borrower_or_404)):
-    return mdl.estimate_input_tokens(borrower, MODEL, mdl.SYSTEM_PROMPT, sb.build_prompt)
-
-@router.post("/{borrower_id}/stream_summary/estimate")
+@router.get("/{borrower_id}/stream_summary/estimate")
 def estimate_credit_memo_prompt(borrower : dict = Depends(get_borrower_or_404)):
-    return mdl.estimate_input_tokens(borrower, MODEL, mdl.SYSTEM_PROMPT, sb.build_credit_memo_prompt)
+    return {
+        "id" : borrower["borrower_id"],
+        "estimated_input_tokens" : mdl.estimate_input_tokens(borrower, MODEL, mdl.SYSTEM_PROMPT, sb.build_credit_memo_prompt),
+        "model" : MODEL
+    }
 
 @router.post("/{borrower_id}/credit_assessment")
 def credit_assessment(borrower : dict = Depends(get_borrower_or_404)):
@@ -157,13 +165,17 @@ def credit_assessment(borrower : dict = Depends(get_borrower_or_404)):
         print(e.message)
         raise HTTPException(status_code = 502, detail = "Analysis provider unavailable")
     
-@router.post("/{borrower_id}/credit_assessment/estimate")
+@router.get("/{borrower_id}/credit_assessment/estimate")
 def estimate_credit_assessment_prompt(borrower : dict = Depends(get_borrower_or_404)):
-    return mdl.estimate_input_tokens(borrower, MODEL, mdl.SYSTEM_PROMPT, ab.build_credit_assessment_prompt)
+    return {
+        "id" : borrower["borrower_id"],
+        "estimated_input_tokens" : mdl.estimate_input_tokens(borrower, MODEL, mdl.SYSTEM_PROMPT, ab.build_credit_assessment_prompt),
+        "model" : MODEL
+    }
 
     
-@router.post("/ask")
-def ask(q : Question):
+@router.post("/context")
+def answer_with_context(q : Question):
     """Retrieve, then answer using only what was retrieved... or refuse"""
     # 1. Retrieve
     # same call as /knowledge/search
@@ -218,3 +230,22 @@ def ask(q : Question):
             "output_tokens" : result["output_tokens"], 
             "stop_reason" : result["stop_reason"]
     }
+    
+@router.post("/ask")
+def ask(q : Question):
+    try:
+        result = mdl.ask_with_tools(q.question)
+    except RuntimeError as e:
+        print(e)
+        raise HTTPException(status_code = 401, detail = "Something went wrong.")
+    except APITimeoutError as e:
+        print(e.message)
+        raise HTTPException(status_code = 504, detail = "Answer provider timed out")
+    except RateLimitError as e:
+        print(e.message)
+        raise HTTPException(status_code = 429, detail = "Answer provider rate limited")
+    except APIStatusError as e:
+        print(e.message)
+        raise HTTPException(status_code = 502, detail = "Answer provider unavailable")
+    
+    return result

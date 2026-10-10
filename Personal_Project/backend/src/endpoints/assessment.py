@@ -1,10 +1,9 @@
-from datetime import datetime
 from typing import Annotated
 
 from data.records import assessments
 from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel, Field
-from utils import _create_new_id
+from utils import TodayOrEarlier, _create_new_id, ddmmyyyyDate
 
 _seen_keys : dict[str,dict] = {}
 router = APIRouter(prefix = "/assessments", tags=["assessments"])
@@ -14,7 +13,7 @@ class NewAssessment(BaseModel):
     primary_period_id : str = Field(min_length=5)
     financial_period_ids : list[Annotated[str,Field(min_length=5)]]
     facility_id : str | None = Field(min_length=5)
-    assessed_at : str = Field(min_length=25)
+    assessed_at : TodayOrEarlier
     assessed_by : str = Field(min_length=1)
     policy_breaches : list[Annotated[str,Field(min_length=5)]] = Field(default_factory=list)
     key_strengths : list[Annotated[str,Field(min_length=5)]] = Field(default_factory=list)
@@ -31,7 +30,7 @@ class UpdateAssessment(BaseModel):
     primary_period_id : str | None = Field(None, min_length=5)
     financial_period_ids : list[Annotated[str,Field(min_length=5)]] | None = Field(None)
     facility_id : str | None = Field(None, min_length=5)
-    assessed_at : str | None = Field(None, min_length=25)
+    assessed_at : TodayOrEarlier
     assessed_by : str | None = Field(None, min_length=1)
     policy_breaches : list[Annotated[str,Field(min_length=5)]] | None = Field(None)
     key_strengths : list[Annotated[str,Field(min_length=5)]] | None = Field(None)
@@ -50,21 +49,19 @@ def get_assessment_or_404(assessment_id: str) -> dict:
     
 
 @router.get("")
-def get_assessments(borrower_id : str | None = None, assessed_after : str | None = None, assessed_before : str | None = None):
+def get_assessments(borrower_id : str | None = None, after : ddmmyyyyDate | None = None, before : ddmmyyyyDate | None = None):
     answer = assessments
     # Filter assessments by borrower
     if borrower_id is not None:
         answer = [asmnt for asmnt in answer if asmnt["borrower_id"] == borrower_id]
         
     # Filter assessments assessed after a given date
-    if assessed_after is not None:
-        after = datetime.strptime(assessed_after, "%d-%m-%Y")
-        answer = [asmnt for asmnt in answer if datetime.strptime(asmnt["assessed_at"], "%d-%m-%Y") > after]
+    if after is not None:
+        answer = [asmnt for asmnt in answer if asmnt["assessed_at"] > after]
     
     # Filter assessments assessed before a given date
-    if assessed_before is not None:
-        before = datetime.strptime(assessed_before, "%d-%m-%Y")
-        answer = [asmnt for asmnt in answer if datetime.strptime(asmnt["assessed_at"], "%d-%m-%Y") < before]
+    if before is not None:
+        answer = [asmnt for asmnt in answer if asmnt["assessed_at"] < before]
     
     # Sort assessments from latest to earliest
     sorted_answers = sorted(answer, key = lambda x: x["assessed_at"], reverse=True)

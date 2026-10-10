@@ -1,8 +1,38 @@
-from pydantic import BaseModel, Field
+import re
+from datetime import date, datetime
+from typing import Annotated, Any
+from zoneinfo import ZoneInfo
+
+from pydantic import AfterValidator, BaseModel, BeforeValidator, Field
+
 
 class Question(BaseModel):
     question : str = Field(min_length=3)
     top_k : int = Field(default=3, gt=0, le=8)
+    
+_DD_MM_YYYY = re.compile(r"\d{2}-\d{2}-\d{4}")
+TIME_ZONE = ZoneInfo(key="Europe/London")
+
+def parse_dd_mm_yyyy(value : Any) -> Any:
+    if not isinstance(value, str):
+        return value  # let pydantic handle dates / other types
+    if not _DD_MM_YYYY.fullmatch(value):
+        raise ValueError("date must be in dd-mm-yyyy format")
+    try:
+        return datetime.strptime(value, "%d-%m-%Y").astimezone(tz=TIME_ZONE).date()
+    except ValueError:
+        raise ValueError("date is not a valid calendar date")
+
+def not_in_future(value: date) -> date:
+    if value > datetime.now(tz=TIME_ZONE).date():
+        raise ValueError("date must be today or earlier")
+    return value
+
+# Type for dates in format dd-mm-yyy
+ddmmyyyyDate = Annotated[date, BeforeValidator(parse_dd_mm_yyyy)]
+
+# Ensure date is of today or before
+TodayOrEarlier = Annotated[date, BeforeValidator(parse_dd_mm_yyyy), AfterValidator(not_in_future)]
 
 # helper function to generate a new id
 def _create_new_id(entity_records, id_key, prefix):
