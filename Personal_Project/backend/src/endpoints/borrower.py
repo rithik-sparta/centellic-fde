@@ -64,7 +64,7 @@ def get_borrowers(sector : str | None = None, internal_rating_rank_lte : int | N
     return answer
 
 @router.get("/{borrower_id}")
-def get_borrower(borrower : dict = Depends(get_borrower_or_404)):  # noqa: B008
+def get_borrower(borrower : Annotated[dict,Depends(get_borrower_or_404)]):
     return borrower
 
 @router.post("", status_code = 201)
@@ -92,7 +92,7 @@ def add_borrower(new : NewBorrower, idempotency_key: str | None = Header(default
     return borrower
 
 @router.put("/{borrower_id}")
-def update_borrower(borrower : dict = Depends(get_borrower_or_404), to_update: UpdateBorrower | None = None):
+def update_borrower(borrower : Annotated[dict,Depends(get_borrower_or_404)], to_update: UpdateBorrower | None = None):
     if to_update is None:
         return borrower
         #raise HTTPException(400, "No request body found.")
@@ -103,7 +103,7 @@ def update_borrower(borrower : dict = Depends(get_borrower_or_404), to_update: U
 
 
 @router.delete("/{borrower_id}", status_code = 204)
-def delete_borrower(borrower : dict = Depends(get_borrower_or_404)):
+def delete_borrower(borrower : Annotated[dict,Depends(get_borrower_or_404)]):
     borrower_id = borrower["borrower_id"]
     _delete_helper(records.facilities,borrower_id)
     _delete_helper(records.debt_repayments,borrower_id)
@@ -115,7 +115,7 @@ def delete_borrower(borrower : dict = Depends(get_borrower_or_404)):
 
 
 @router.post("/{borrower_id}/summary")
-def summarise(borrower: dict = Depends(get_borrower_or_404)):
+def summarise(borrower: Annotated[dict,Depends(get_borrower_or_404)]):
     try:
         return sb.summarise_borrower(borrower)
     except APITimeoutError as e:
@@ -129,7 +129,7 @@ def summarise(borrower: dict = Depends(get_borrower_or_404)):
         raise HTTPException(status_code = 502, detail = "Summary provider unavailable")
     
 @router.get("/{borrower_id}/summary/estimate")
-def estimate_summary_prompt(borrower : dict = Depends(get_borrower_or_404)):
+def estimate_summary_prompt(borrower : Annotated[dict,Depends(get_borrower_or_404)]):
     return {
         "id" : borrower["borrower_id"],
         "estimated_input_tokens" : mdl.estimate_input_tokens(borrower, MODEL, mdl.SYSTEM_PROMPT, sb.build_prompt),
@@ -144,7 +144,7 @@ def stream_summarise(borrower: Annotated[dict, Depends(get_borrower_or_404)]):
     )
 
 @router.get("/{borrower_id}/stream_summary/estimate")
-def estimate_credit_memo_prompt(borrower : dict = Depends(get_borrower_or_404)):
+def estimate_credit_memo_prompt(borrower : Annotated[dict,Depends(get_borrower_or_404)]):
     return {
         "id" : borrower["borrower_id"],
         "estimated_input_tokens" : mdl.estimate_input_tokens(borrower, MODEL, mdl.SYSTEM_PROMPT, sb.build_credit_memo_prompt),
@@ -152,7 +152,7 @@ def estimate_credit_memo_prompt(borrower : dict = Depends(get_borrower_or_404)):
     }
 
 @router.post("/{borrower_id}/credit_assessment")
-def credit_assessment(borrower : dict = Depends(get_borrower_or_404)):
+def credit_assessment(borrower : Annotated[dict,Depends(get_borrower_or_404)]):
     try:
         return ab.credit_assessment(borrower)
     except APITimeoutError as e:
@@ -166,7 +166,7 @@ def credit_assessment(borrower : dict = Depends(get_borrower_or_404)):
         raise HTTPException(status_code = 502, detail = "Analysis provider unavailable")
     
 @router.get("/{borrower_id}/credit_assessment/estimate")
-def estimate_credit_assessment_prompt(borrower : dict = Depends(get_borrower_or_404)):
+def estimate_credit_assessment_prompt(borrower : Annotated[dict,Depends(get_borrower_or_404)]):
     return {
         "id" : borrower["borrower_id"],
         "estimated_input_tokens" : mdl.estimate_input_tokens(borrower, MODEL, mdl.SYSTEM_PROMPT, ab.build_credit_assessment_prompt),

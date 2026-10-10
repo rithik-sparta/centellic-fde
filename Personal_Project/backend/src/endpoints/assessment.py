@@ -68,7 +68,7 @@ def get_assessments(borrower_id : str | None = None, after : ddmmyyyyDate | None
     return sorted_answers
     
 @router.get("/{assessment_id}")
-def get_assessment(assessment : dict = Depends(get_assessment_or_404)):
+def get_assessment(assessment : Annotated[dict,Depends(get_assessment_or_404)]):
     return assessment
     
 @router.post("", status_code = 201)
@@ -105,7 +105,7 @@ def add_assessment(new : NewAssessment, idempotency_key: str | None = Header(def
     return assessment
 
 @router.put("/{assessment_id}")
-def update_borrower(assessment : dict = Depends(get_assessment_or_404), to_update: UpdateAssessment | None = None):
+def update_borrower(assessment : Annotated[dict,Depends(get_assessment_or_404)], to_update: UpdateAssessment | None = None):
     if to_update is None:
         return assessment
         #raise HTTPException(400, "No request body found.")
@@ -114,5 +114,5 @@ def update_borrower(assessment : dict = Depends(get_assessment_or_404), to_updat
     return assessment
 
 @router.delete("/{assessment_id}",status_code=204)
-def delete_assessment(assessment : dict = Depends(get_assessment_or_404)):
+def delete_assessment(assessment : Annotated[dict,Depends(get_assessment_or_404)]):
     assessments.remove(assessment)
