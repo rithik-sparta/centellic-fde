@@ -1,14 +1,21 @@
 from collections import defaultdict
+from collections.abc import Iterable
 from datetime import datetime
-from typing import Any, Callable, Iterable, Set, cast
-from utils import list_fields, list_all_data
-from pydantic import BaseModel, Field
-import os
-from anthropic.types import TextBlock
-import anthropic
-from data.records import financial_periods, covenant_tests, covenants, assessments, lending_policies, facilities, debt_repayments
-from agent.model import MODEL, SYSTEM_PROMPT, client
 
+from anthropic.types import TextBlock
+from data.records import (
+    assessments,
+    covenant_tests,
+    covenants,
+    debt_repayments,
+    facilities,
+    financial_periods,
+    lending_policies,
+)
+from pydantic import BaseModel, Field
+from utils import TIME_ZONE, list_all_data, list_fields
+
+from agent.model import MODEL, SYSTEM_PROMPT, client
 
 
 class BorrowerAnalysis(BaseModel):
@@ -27,7 +34,7 @@ def _get_financial_period(financial_period_id : str | None) -> dict | None:
     return None
 
 def _get_financial_periods(financial_period_ids : Iterable[str]) -> list[dict]:
-    return sorted([f for f in financial_periods if f["period_id"] in financial_period_ids], key = lambda x : datetime.strptime(x["period_end_date"], "%d-%m-%Y"), reverse=True)
+    return sorted([f for f in financial_periods if f["period_id"] in financial_period_ids], key = lambda x : datetime.strptime(x["period_end_date"], "%d-%m-%Y").astimezone(tz=TIME_ZONE), reverse=True)
 
 # Get the covenant tests associated with a borrowers financial period. Return with the covenant id used for the test.
 def _get_covenant_tests(financial_period_id : str | None) -> dict[str,list[dict[str, list[dict]]]]:
@@ -43,7 +50,7 @@ def _get_covenants(covenant_ids : Iterable[str]) -> dict[str,dict]:
     return {cov["covenant_id"] : cov for cov in covenants if cov["covenant_id"] in covenant_ids}
             
 def _get_assessments(borrower_id : str) -> list[dict]:
-    return sorted([asmnt for asmnt in assessments if asmnt["borrower_id"] == borrower_id], key = lambda x : datetime.strptime(x["assessed_at"], "%d-%m-%Y"), reverse=True)
+    return sorted([asmnt for asmnt in assessments if asmnt["borrower_id"] == borrower_id], key = lambda x : datetime.strptime(x["assessed_at"], "%d-%m-%Y").astimezone(tz=TIME_ZONE), reverse=True)
     
 def _get_lending_policies(policy_ids : Iterable[str]) -> list[dict]:
     return [pol for pol in lending_policies if pol["policy_id"] in policy_ids]
@@ -52,7 +59,7 @@ def _get_facilities(borrower_id : str) -> list[dict]:
     return [f for f in facilities if f["borrower_id"]==borrower_id]
     
 def _get_debt_repayments(borrower_id : str) -> list[dict]:
-    return sorted([dr for dr in debt_repayments if dr["borrower_id"] == borrower_id], key = lambda x : datetime.strptime(x["due_date"], "%d-%m-%Y"), reverse=True)
+    return sorted([dr for dr in debt_repayments if dr["borrower_id"] == borrower_id], key = lambda x : datetime.strptime(x["due_date"], "%d-%m-%Y").astimezone(tz=TIME_ZONE), reverse=True)
     
 def build_prompt(borrower: dict) -> str:
     prompt = (
@@ -70,7 +77,7 @@ def build_prompt(borrower: dict) -> str:
     list_all_data("Facility", "facility_id", facility_results, ["facility_type", "currency", "commited_amount", "drawn_amount", "available_amount", "balance_as_of_data", "start_date", "maturity_date", "margin_bps", "ranking", "security_description", "status"])
         
     assessment_results = _get_assessments(borrower["borrower_id"])
-    financial_period_ids : Set[str] = set()
+    financial_period_ids : set[str] = set()
     for ar in assessment_results:
         financial_period_ids.update(ar["financial_period_ids"])
         
