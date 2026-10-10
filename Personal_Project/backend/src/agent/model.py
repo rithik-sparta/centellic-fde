@@ -171,4 +171,4 @@ def _execute_tool(name: str, tool_input: dict) -> tuple[str,bool]:
         result_text, is_error = CalculationTool.run(tool_input["name"], tool_input["arguments"])
         return result_text, is_error
     else:
-        return f'Error: Unknown method "{name}"', True
+        return f'Error: Unknown tool "{name}"', True
