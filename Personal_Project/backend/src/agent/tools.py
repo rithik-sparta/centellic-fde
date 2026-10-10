@@ -1,8 +1,9 @@
 import functools
 import inspect
 import json
+from collections.abc import Callable
 from decimal import Decimal, InvalidOperation
-from typing import Any, Callable, Optional
+from typing import Any, ClassVar
 
 from data.records import (
     assessments,
@@ -60,7 +61,7 @@ class DocumentSearchTool:
     
     
 class RecordSearchTool:
-    records = {
+    records : ClassVar[dict[str,list[dict[str,Any]]]] = {
                 "borrowers" : borrowers,
                 "facilities" : facilities,
                 "covenants" : covenants,
@@ -321,7 +322,7 @@ class CalculationTool:
     def _tools(cls) -> dict[str, Callable]:
         return {n: f for n, f in inspect.getmembers(cls, inspect.ismethod) if n in _REGISTRY}
     
-    _PARAM_DESCRIPTIONS: dict[str, str] = {
+    _PARAM_DESCRIPTIONS: ClassVar[dict[str, str]] = {
         "total_debt": "Total borrowings, in currency units (not thousands or millions).",
         "cash": "Cash and cash equivalents, in the same currency as the other amounts.",
         "drawn_amount": "Amount currently drawn on the facility.",

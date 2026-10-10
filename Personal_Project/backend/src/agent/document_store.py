@@ -1,11 +1,9 @@
 from typing import cast
-import os
+
 import chromadb
 import voyageai
-
-from data.documents import documents
 from config import VOYAGE_API_KEY
-
+from data.documents import documents
 
 EMBED_MODEL = "voyage-3-lite"
 voyage = voyageai.Client(  # type: ignore

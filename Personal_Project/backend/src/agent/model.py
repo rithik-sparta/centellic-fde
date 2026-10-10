@@ -1,12 +1,12 @@
 # File to hold information about models, tools and prompts used.
-from typing import Callable, cast
+from collections.abc import Callable
+from typing import cast
+
 import anthropic
-from agent import document_store
 from anthropic.types import MessageParam, ToolUnionParam
-from agent.tools import DocumentSearchTool, RecordSearchTool, CalculationTool
 from config import ANTHROPIC_API_KEY, MODEL
 
-
+from agent.tools import CalculationTool, DocumentSearchTool, RecordSearchTool
 
 SYSTEM_PROMPT = (
     "You are a credit analyst reviewing a borrowers performance. "
@@ -146,7 +146,7 @@ def _execute_tool(name: str, tool_input: dict) -> tuple[str,bool]:
     """Run the requested tool. Returns (result_text, is_error)"""
 
     # Guard 1 - we only have 1 real tool, checking it is equal to that
-    if name not in TOOLS.keys():
+    if name not in TOOLS:
         return f"Unknown tool: {name}", True
     
     if name == "search_document_store":
