@@ -26,28 +26,28 @@ documents : list[dict] = [
     {
         "id": "doc-04",
         "date": "08-08-2026",
-        "type": "covenant summaries",
+        "type": "covenant-summary",
         "title": "Covenant summary — Oakridge Logistics Group revolving facility",
         "text": "OAKRIDGE LOGISTICS GROUP LTD — COVENANT SUMMARY\nFacility: GBP8.0m revolving facility, senior secured\n\nFinancial covenant: the borrower shall maintain net debt to EBITDA at or below 4.75x, tested quarterly on a trailing twelve-month basis. EBITDA is adjusted and lease liabilities are included in debt.\n\nReporting: quarterly management accounts and a covenant compliance certificate must be delivered to the lender within 30 days of each quarter end.\n\nConsequence of breach: failure to meet the leverage test, or to deliver the compliance certificate on time, constitutes an event of default under the facility agreement.\n\nLender's rights: on an event of default the lender may suspend further drawdowns, require a cash sweep of surplus receipts, charge a fee to agree a waiver or amendment, or accelerate repayment and enforce its security under the all-assets debenture, including the assignment of customer receivables."
     },
     {
         "id": "doc-05",
         "date": "09-08-2026",
-        "type": "lending policy",
+        "type": "lending-policy",
         "title": "2026 corporate lending policy update",
         "text": "CORPORATE LENDING POLICY — 2026 GENERAL UPDATE\nGeneral corporate lending policy | Effective: 01-Jan-26\n\n1. Scope. Applies to all corporate borrowers in sectors without an active sector-specific policy.\n2. Limits. Maximum internal rating rank: 15. Maximum net leverage: 5.5x. Minimum interest cover: 2.25x. Facilities require security.\n3. Exposure. Assessments shall consider total committed exposure and available security before recommending new or amended facilities.\n4. Cyclical sectors. Retail, Transport and Leisure show recurring earnings volatility. Lending decisions in these sectors shall not rely on peak trading performance; assessments shall use sustainable or through-cycle earnings with downside sensitivity testing. Retail and Leisure are subject to additional sector-specific limits; Transport is assessed against this general policy pending a dedicated sector overlay.\n5. Leisure overlay. Leisure carries the tightest sector-specific limits (maximum leverage 4.0x, minimum interest cover 3.0x) because occupancy and discretionary spending can weaken rapidly in a downturn."
     },
     {
         "id": "doc-06",
         "date": "10-08-2026",
-        "type": "restructuring case study",
+        "type": "restructuring-case-study",
         "title": "Merefield Leisure restructuring case",
         "text": "MEREFIELD LEISURE HOLDINGS LTD — RESTRUCTURING CASE NOTE\nFacility: GBP7.0m senior secured term loan, fully drawn | Status: Defaulted\n\nPosition: net leverage 14.00x; interest cover 0.82x; operating cash flow negative. A GBP0.6m scheduled principal instalment has been missed. Property security remains available to the lender.\n\nThis is a restructuring and recovery case rather than ordinary relationship management. Workstreams: (1) revised cash-flow forecast; (2) property valuation; (3) stakeholder discussions; (4) assess whether the existing capital structure is supportable on sustainable through-cycle earnings."
     },
     {
         "id": "doc-07",
         "date": "15-07-2026",
-        "type": "covenant summaries",
+        "type": "covenant-summary",
         "title": "Calder Food Retail covenant amendment summary",
         "text": "CALDER FOOD RETAIL LTD — COVENANT AMENDMENT SUMMARY\nFacility: GBP9.0m revolving facility\n\nThe original facility agreement required net debt to EBITDA at or below 4.50x, tested quarterly. The borrower breached this covenant at the 31 March 2026 test, with leverage measured at 4.72x.\n\nA temporary amendment, effective 1 April 2026, raised the threshold to 5.00x. At the following quarterly test, leverage was measured at 10.48x against the amended 5.00x threshold — a further breach.\n\nA breach of the leverage covenant is an event of default under the facility agreement. The lender may decline further drawdowns under the revolver, require additional security or cash cover, charge a fee to agree any further waiver or amendment, or accelerate repayment and enforce its security."
     },
