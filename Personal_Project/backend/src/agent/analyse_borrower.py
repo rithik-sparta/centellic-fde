@@ -52,7 +52,7 @@ class CreditAssessment(BaseModel):
     rationale : str =  Field(description="A small 4 sentence maximum paragraph reasoning behind the proposed rating given.")
     
 def build_credit_assessment_prompt(borrower : dict):
-    prompt = "Give a credit assessment for the following borrower. Include details about their strengths, risks, a proposed internal rating from 1 (best) to 22 (worst) and a rationale behind the chosen rating."
+    prompt = "Give a credit assessment for the following borrower. Include details about their strengths, risks, a proposed internal rating from 1 (best) to 22 (worst) and a rationale behind the chosen rating. Be detailed but brief in detailing strengths, risks and rationale."
     prompt += list_fields(borrower,["borrower_id","name","sector","latest_period_id"])
     return prompt
     
