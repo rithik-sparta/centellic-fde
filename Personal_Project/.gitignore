@@ -2,6 +2,7 @@
 .DS_Store
 project_notes.md
 .env
+.env-test
 # Python bytecode / cache
 __pycache__/
 *.py[cod]
