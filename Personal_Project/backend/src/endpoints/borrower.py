@@ -164,12 +164,14 @@ def credit_assessment(borrower : Annotated[dict,Depends(get_borrower_or_404)]):
     except APIStatusError as e:
         print(e.message)
         raise HTTPException(status_code = 502, detail = "Analysis provider unavailable")
+    except RuntimeError:
+        raise HTTPException(status_code = 502, detail = "Analysis provider encountered a runtime error")
     
 @router.get("/{borrower_id}/credit_assessment/estimate")
 def estimate_credit_assessment_prompt(borrower : Annotated[dict,Depends(get_borrower_or_404)]):
     return {
         "id" : borrower["borrower_id"],
-        "estimated_input_tokens" : mdl.estimate_input_tokens(borrower, MODEL, mdl.SYSTEM_PROMPT, ab.build_credit_assessment_prompt),
+        "estimated_input_tokens" : mdl.estimate_input_tokens(borrower, MODEL, mdl.AGENT_SYSTEM_PROMPT, ab.build_credit_assessment_prompt),
         "model" : MODEL
     }
 
