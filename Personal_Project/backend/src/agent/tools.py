@@ -1,3 +1,4 @@
+import ast
 import functools
 import inspect
 import json
@@ -72,6 +73,61 @@ class RecordSearchTool:
                 "assessments" : assessments,
             }
     
+        # Builtins exposed to model-written filter functions
+    safe_builtins: ClassVar[dict[str, Any]] = {
+        "len": len, "any": any, "all": all, "min": min, "max": max, "sum": sum,
+        "abs": abs, "round": round, "sorted": sorted, "str": str, "int": int,
+        "float": float, "bool": bool, "isinstance": isinstance,
+    }
+
+    # Methods that may be called on values (e.g. r.get(...), name.lower())
+    safe_methods: ClassVar[frozenset[str]] = frozenset({
+        "get", "lower", "upper", "strip", "startswith", "endswith",
+        "split", "items", "keys", "values", "count",
+    })
+
+    # AST node types permitted in a filter function
+    allowed_nodes: ClassVar[tuple[type, ...]] = (
+        ast.Module, ast.FunctionDef, ast.arguments, ast.arg, ast.Return, ast.Expr,
+        ast.If, ast.Assign, ast.Lambda, ast.IfExp, ast.BoolOp, ast.BinOp, ast.UnaryOp,
+        ast.Compare, ast.Call, ast.Attribute, ast.Subscript, ast.Slice, ast.Name,
+        ast.Constant, ast.List, ast.Tuple, ast.Dict, ast.Set, ast.ListComp,
+        ast.GeneratorExp, ast.SetComp, ast.DictComp, ast.comprehension,
+        ast.operator, ast.boolop, ast.unaryop, ast.cmpop, ast.expr_context,
+    )
+
+    @classmethod
+    def validate_filter_ast(cls, tree: ast.AST) -> None:
+        """Raise ValueError if the parsed filter uses anything outside the allowlist."""
+        for node in ast.walk(tree):
+            if not isinstance(node, cls.allowed_nodes) or isinstance(node, ast.Pow):
+                raise ValueError(f"Disallowed syntax: {type(node).__name__}")
+            if isinstance(node, ast.Name) and node.id.startswith("_"):
+                raise ValueError("Names starting with '_' are not allowed")
+            if isinstance(node, ast.Call):
+                f = node.func
+                if isinstance(f, ast.Attribute) and f.attr not in cls.safe_methods:
+                    raise ValueError(f"Method not allowed: {f.attr}")
+                if isinstance(f, ast.Name) and f.id not in cls.safe_builtins and not f.id.islower():
+                    raise ValueError(f"Call not allowed: {f.id}")
+            if isinstance(node, ast.Attribute) and node.attr not in cls.safe_methods:
+                raise ValueError(f"Attribute access not allowed: {node.attr}")
+
+    @classmethod
+    def compile_filter(cls, source: str) -> Callable[[dict], bool]:
+        """Turn a string containing one function definition into a callable."""
+        tree = ast.parse(source.strip(), mode="exec")
+        if len(tree.body) != 1 or not isinstance(tree.body[0], ast.FunctionDef):
+            raise ValueError('Provide exactly one function definition, e.g. \'def f(r): return r["x"] > 1\'')
+        fn = tree.body[0]
+        if len(fn.args.args) != 1:
+            raise ValueError("The function must take exactly one argument (the record dict)")
+        cls.validate_filter_ast(tree)
+        namespace: dict[str, Any] = {}
+        exec(compile(tree, "<filter>", "exec"), {"__builtins__": cls.safe_builtins}, namespace)
+        return namespace[fn.name]
+
+    
     @classmethod
     def schema(cls) -> dict:
         schema = {
@@ -85,8 +141,16 @@ class RecordSearchTool:
                 "properties": {
                     "entity_name": {"type": "string", "description": f"The name of the entity to search across. One of {"".join(cls.records.keys())}"},
                     "borrower_id": {"type": "string", "description": "The borrower_id of the records you wish to search across. If the entity contains a borrower_id field, this field must be included."},
-                    "filter_condition": {"type": "function", "description": "The filter condition to filter records. If a function is provided it must take a python dict and return a boolean value. Otherwise all valid records are returned."}
+                    "filter_condition": {
+                        "type": "string",
+                        "description": (
+                            "Optional. A single Python function definition taking one argument (a record dict) "
+                            "and returning a bool, e.g. 'def f(r): return r.get(\"amount\", 0) > 1000000'. "
+                            "Only simple expressions, comparisons, comprehensions and common str/dict methods "
+                            "are allowed; no imports or '**'. If omitted, all records are returned."
+                        ),
                     },
+                },
                 "required": ["entity_name"],
                 },
             }
@@ -95,19 +159,39 @@ class RecordSearchTool:
     
         
     @classmethod
-    def get_records(cls, entity_name : str, borrower_id : str | None, filter_condition: Callable[[dict],bool] | None = lambda x : True) -> tuple[str,bool]:
+    def get_records(cls, entity_name : str, borrower_id : str | None, filter_condition: str | None = None) -> tuple[str,bool]:
         """Get records of a particular entity, filtering by the borrower_id if applicable."""
-        if "borrower_id" in cls.records[entity_name] and borrower_id is None:
-            return "Please provide a borrower_id to filter against.", False
-        records = [r for r in cls.records[entity_name] if (("borrower_id" not in r) or (r.get("borrower_id")==borrower_id))]
-        if filter_condition is not None:
-            records = [r for r in records if filter_condition(r)]
-        formatted = f"{entity_name.capitalize()}\n"
-        formatted += "\n\n".join([
-            "\n".join([f"{field} : {value}" for field, value in r.items()]) for r in records]
-                              )
-        return formatted, True
+        # if "borrower_id" in cls.records[entity_name] and borrower_id is None:
+        #     return "Please provide a borrower_id to filter against.", False
+        # records = [r for r in cls.records[entity_name] if (("borrower_id" not in r) or (r.get("borrower_id")==borrower_id))]
+        # if filter_condition is not None:
+        #     records = [r for r in records if filter_condition(r)]
+        # formatted = f"{entity_name.capitalize()}\n"
+        # formatted += "\n\n".join([
+        #     "\n".join([f"{field} : {value}" for field, value in r.items()]) for r in records]
+        #                       )
+        # return formatted, True
+        rows = cls.records.get(entity_name)
+        if rows is None:
+            return f"Unknown entity '{entity_name}'. Valid: {', '.join(cls.records)}", True
 
+        if borrower_id is None and any("borrower_id" in r for r in rows):
+            return "Please provide a borrower_id to filter against.", True
+
+        results = [r for r in rows if "borrower_id" not in r or r["borrower_id"] == borrower_id]
+
+        if filter_condition:
+            try:
+                predicate = cls.compile_filter(filter_condition)
+                results = [r for r in results if predicate(r)]
+            except Exception as e:  # returned to the model so it can correct itself
+                return f"Invalid filter_condition: {type(e).__name__}: {e}", True
+
+        formatted = f"{entity_name.capitalize()}\n"
+        formatted += "\n\n".join(
+            "\n".join(f"{field} : {value}" for field, value in r.items()) for r in results
+        )
+        return formatted, False
 
 class CalculationError(ValueError):
     """Invalid input. Converted into {"ok": False, "error": ...} for the LLM."""

@@ -30,7 +30,7 @@ AGENT_SYSTEM_PROMPT = (
     "Use the right tool for the job:"
     "(1) search_document_store to find relevant documents for a question."
     "(2) search_records to search relevant records to assess a borrower."
-    "(3) calculation_tool to perform calculations using the data."
+    "(3) run_calculation to perform calculations using the data."
 )
 
 TOOLS : dict[str,dict] = {
@@ -92,7 +92,7 @@ def ask_with_tools(question: str) -> dict:
             model=MODEL,
             max_tokens=600,
             system=AGENT_SYSTEM_PROMPT,
-            tools=cast(list[ToolUnionParam], [TOOLS]),
+            tools=cast(list[ToolUnionParam], list(TOOLS.values())),
             messages=messages,
         )
 
@@ -155,15 +155,16 @@ def _execute_tool(name: str, tool_input: dict) -> tuple[str,bool]:
             return 'Error: missing required field "query"', True
         
         result_text, is_error = DocumentSearchTool.get_context(tool_input["query"])
-        
         return result_text, is_error
     
     elif name == "search_records":
         if "entity_name" not in tool_input:
             return 'Error, missing required field "entity_name"', True
-        result_text, is_error = RecordSearchTool.get_records(tool_input["entity_name"],tool_input["borrower_id"])
+        print(tool_input)
+        result_text, is_error = RecordSearchTool.get_records(tool_input["entity_name"],tool_input.get("borrower_id"), tool_input.get("filter_condition"))
         return result_text, is_error
-    elif name == "calculation_tool":
+    elif name == "run_calculation":
+        print(tool_input)
         if "name" not in tool_input:
             return 'Error: missing required field "name"', True
         if "arguments" not in tool_input:
