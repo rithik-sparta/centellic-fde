@@ -174,7 +174,16 @@ def estimate_credit_assessment_prompt(borrower : Annotated[dict,Depends(get_borr
         "estimated_input_tokens" : mdl.estimate_input_tokens(borrower, MODEL, mdl.AGENT_SYSTEM_PROMPT, ab.build_credit_assessment_prompt),
         "model" : MODEL
     }
-
+    
+@router.post("/search")
+def search(q : Question):
+    try:
+        return {
+            "question" : q.question, 
+            "results" : ds.search(q.question, q.top_k)
+        }
+    except RuntimeError as e:
+        raise HTTPException(status_code= 409, detail = str(e))
     
 @router.post("/context")
 def answer_with_context(q : Question):
@@ -206,7 +215,7 @@ def answer_with_context(q : Question):
     print(len(context), repr(context[:100]))
     
     try:
-        result = mdl.answer_from_context(q.question,context=context)
+        result = mdl.answer_from_context(q.question,context)
     except APITimeoutError as e:
         print(e.message)
         raise HTTPException(status_code = 504, detail = "Answer provider timed out")
