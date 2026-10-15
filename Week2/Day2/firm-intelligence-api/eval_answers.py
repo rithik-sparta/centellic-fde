@@ -12,6 +12,7 @@ from pathlib import Path
 
 import chunk_index
 import context
+import hybrid
 import llm
 from eval_set import EVAL_SET
 from eval_tools import keywords_present
@@ -25,7 +26,8 @@ def run(strategy: str, vectors: list[list[float]], floor: float) -> dict:
     # False refusal - Info exists but the model does not answer it
     correct, false_refusals, wrong, tokens = [],[],[],[]
     for q, hits in zip(EVAL_SET, ranked):
-        usable = [h for h in hits if h["score"] >= floor]
+        # usable = [h for h in hits if h["score"] >= floor]
+        usable = [hit for hit in hits if hybrid.is_usable(hit, floor)]
         # passes gate - build the context and ask model
         # not pass - refuse without calling model (like /knowledge/ask)
         if usable:

@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 import grounding
+import hybrid
 
 # import knowledge
 import knowledge_store as knowledge
@@ -54,7 +55,7 @@ def ask(q : Question):
     
     # 2. Filter, and decide whether to make a call to the model at all.
     # compare against our RELEVANCE_FLOOR
-    usable = [hit for hit in hits if hit["score"] >= RELEVANCE_FLOOR]
+    usable = [hit for hit in hits if hybrid.is_usable(hit, RELEVANCE_FLOOR)]
     
     if not usable:
         return {
