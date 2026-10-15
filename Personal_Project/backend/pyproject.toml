@@ -8,4 +8,4 @@ testpaths = ["tests"]
 pythonpath = ["src"]
 
 [tool.mypy]
-mypy_path = ["src"]
+mypy_path = "$MYPY_CONFIG_FILE_DIR/src"
