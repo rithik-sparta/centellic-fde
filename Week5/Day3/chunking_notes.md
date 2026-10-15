@@ -54,7 +54,6 @@ These systems can hallucinate in one of two ways. First, a response from an AI t
 In production environment, hallucinations could lead to decisions based on un supported claims.
 In a legal domain, this could lead to fines based on following uncited claims.
 
-
 ---
 
 3. Why does it happen?
@@ -89,7 +88,6 @@ They borrow credibility from the source. If the cited document is authoritative,
 
 Mostly-correct output trains trust. If most citations check out, people reasonably relax. The occasional bad one then lands in exactly the place where attention has dropped.
 
-
 ### A scenario: the sentence is true, the citation is wrong
 
 A compliance assistant at a UK firm is asked whether a data breach must be reported. It answers: "A personal data breach that's likely to risk individuals' rights must be reported to the ICO within 72 hours of the firm becoming aware of it." That is correct. The attached citation is the firm's internal Data Retention Policy, which says nothing about breach reporting.
@@ -116,8 +114,6 @@ A compliance assistant at a UK firm is asked whether a data breach must be repor
 I'd call it a real failure but a lower-severity one. It's a near miss that shows the process is broken. The false-claim, false-citation case is the one that hurts, and the same defect produces both, so tracking support rate rather than link validity is what catches it. Per the TechTarget summary, management should track errors and overrides and use that data to retrain both systems and staff. One more finding bears on this: experimental work found that internalised personal accountability reduced both omission and commission errors. Making a named person responsible for verifying a citation may therefore help more than telling people to be careful.
 
 ---
-
-
 
 5. How do we stop it?
 
@@ -181,4 +177,15 @@ Chunking Strategy
   * Embed questions once - 32 questions, one call, reused against six indexes
   * Test in memory - Fake vectors must never reach the real store.
 * `
-*
+* Overlap doesn't fix sentence cut off. Overlap fixes the problem with context being split across chunks.
+* Fingerprint changes when document text changes, the embedding model changes,
+* Fingerprint allows us to skip rebuilding the index if the document is the same, as this is expensive.
+* Why store fingerprint on each chunk? We can cross check whether the chunk as changed.
+* MRR - If top doc is most relevant, Recall@3 -> coverage of docs. Can disagree as MRR only checks top document, but Recall looks at top k .
+
+
+WRITE (run once, free if nothing changed)
+chunking.py  ->  chunk_corpus  ->  build  ->  embed_batched  ->  Voyage  ->  Chroma "chunks_<strategy></strategy>"
+
+READ (run for every question)
+question vector  ->  search_with_vectors  ->  Chroma "chunks_<strategy></strategy>"  ->  ranked hits
