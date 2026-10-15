@@ -3,7 +3,15 @@ One Chroma collection per chunking strategy so that strategies can be compared s
 
 Each collection remembers a "fingerprint" of the chunks and the embedding model that built it.
 If wither changes, the collecttion is rebuilt from scratch.
+
+Builds write and read
 """
+
+# things to note from our switch to Chroma
+# embed_texts is imported not rewritten... embedding provider hasn't changed only the storage has
+#  configuration=.... -> not optional, we are choosing something different from Chromas default
+# Chroma returns distane, we return similarity -> flip the meaning Chroma -> distance lower is better, 1-distance -> similarity cosine
+# upsert instead of add -> add fails on an id that already exists, upsert overwrites
 
 
 import hashlib
@@ -42,7 +50,7 @@ def embed_batched(texts: list, input_type: str) -> tuple[list[list[float]],int]:
         tokens += batch_tokens
     return vectors, tokens
 
-# the fingerprint changes if the text, the model or the order changes... and stays put if nothing does
+# the fingerprint changes if the text, the embedding model or the order changes... and stays put if nothing does
 def fingerprint(chunks: list[dict]) -> str:
     # SHA-256 - a hashing algorithm that returns a fixed length code (64 characters long)
     digest = hashlib.sha256(knowledge.EMBED_MODEL.encode())
@@ -55,6 +63,9 @@ def fingerprint(chunks: list[dict]) -> str:
 def build(strategy: str, force: bool = False) -> dict:
     """Make sure the strategy's collection matches the current corpus, chunker and model."""
     """Answer's one q.... is the index I already have still correct? Yes then do nothing, no then throw index away and build a new one"""
+    """Write side is run once, free if nothing changed."""
+    """Flow: chunking.py<chunk_corpus> -> """
+    """Read side: Run for every question. Question vector -> search_with_vectors -> chromadb -> chunks_strategy"""
     # Part 1
     chunks = chunking.chunk_corpus(ALL_DOCUMENTS, strategy)
     fp = fingerprint(chunks)
@@ -72,19 +83,75 @@ def build(strategy: str, force: bool = False) -> dict:
         pass
     
     col = collection_for(strategy)
+    #. voyage call
     vectors, tokens = embed_batched([c["text"] for c in chunks], input_type="document")
     # Upsert never removes. If corpus shrinks old chunks will stay behind, we do not want this to happen.
     col.upsert(
         ids=[c["id"] for c in chunks],
         embeddings = vectors, # type: ignore
         documents=[c["text"] for c in chunks],
-        metadatas = [{"doc-id": c["doc-id"], "title" : c["title"], "fingerprint" : fp} for c in chunks],
+        metadatas = [{"doc-id": c["doc_id"], "title" : c["title"], "fingerprint" : fp} for c in chunks],
         
     )
     
     return {"strategy" : strategy, "chunks" : len(chunks), "embedding_tokens" : tokens, "rebuilt" : True}
 
 
+# CURRENT - 
 
+# NEW FUNCTIONS ADDS - search_with_vectors
+# the read side
+# it takes question vectors that are already embedded, so questions are embedded once and reused across all 6 categories
+# k - how many chunks to return per question
 
+def search_with_vectors(strategy: str, query_vectors: list[list[float]], k: int) -> list[list[dict]]:
+    """
+    We embed the question once, then searches many strategies with the same vectors.
+    """
+    col = collection_for(strategy)
+    if col.count()==0:
+        raise RuntimeError(f"Index for '{strategy}' is empty, build it first")
     
+    # the search
+    result = col.query(query_embeddings=query_vectors, n_results=min(k, col.count())) # type: ignore
+    """ 
+    what result looks like
+      - result["ids"] - a list of 2 lists, each holding 3 ids.
+      - result["documents"] - a list of 2 lists, each holding 3 texts.
+      - result["metadatas"] - a list of 2 lists, each holding 3 metadata dictionaries.
+      - result["distances"] - a list of 2 lists, each holding 3 distances.
+      e.g. ids ['doc001#00', 'doc101#00'. 'doc007#00']
+      e.g. distances [0.375, 0.389, 0.30]
+    Takes vectors not questions
+    """
+    return [
+        # Chroma returns 4 parallel nested lists
+       [{"id": meta["doc-id"], "chunk_id": chunk_id, "title": meta["title"], "text": text, "score" : 1 - distance} for chunk_id, text, meta, distance in zip(ids, docs, metas, dists) ]
+       for ids, docs, metas, dists in zip(result["ids"], result["documents"], result["metadatas"], result["distances"]) # type: ignore
+    ]
+
+
+"""
+a chunk that only keyword search found has no cosine score... our relevance gate needs one
+"""
+
+def cosine_for(strategy: str, query_vector: list[float], chunk_ids: list[str]) -> dict[str, float]:
+    if not chunk_ids:
+        return {}
+    
+    stored = collection_for(strategy).get(ids=chunk_ids, include=["embeddings"])
+    return {
+        chunk_id: float(knowledge.cosine_similarity(query_vector, list(vector)))
+        for chunk_id, vector in zip(stored["ids"], stored["embeddings"])
+    }
+    
+# where it fits in hybird.py?
+    # Vector search returns its top 10 with a cosine
+    # Keyword search returns its top 10
+    # RRF merges them 
+    # any chunk in the keyword list but NOT in the vector list is passed to "cosine_for"
+    # now every hit has a cosine... so the gate works the same on all of them
+        # score >= 0.45 or exact_match
+        
+# question mentions 3307
+# chunk mentions 3307
