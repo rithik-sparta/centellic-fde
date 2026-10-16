@@ -11,8 +11,8 @@ from utils import list_fields
 class BorrowerAnalysis(BaseModel):
     """This is the shape we require back... it is not a suggestion to the model.... it is a contract"""
     tier : str = Field(description="One of: magic circle, national, boutique")
-    strengths : list[str] = Field(max_length = 3, description = "Strengths associates with the firm")
-    risks : list[str] = Field(max_length = 3, description = "Risks associated with the firm")
+    strengths : list[str] = Field(max_length = 3, description = "Strengths associates with the borrower")
+    risks : list[str] = Field(max_length = 3, description = "Risks associated with the borrower")
     headcount_efficiency : str = Field(description = "high, medium or low")
     
     
