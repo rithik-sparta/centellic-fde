@@ -1,6 +1,5 @@
-from fastapi import FastAPI
 from endpoints import assessment, borrower, document_store
-
+from fastapi import FastAPI
 
 app = FastAPI(title="Credit Analysis API")
 app.include_router(assessment.router)
