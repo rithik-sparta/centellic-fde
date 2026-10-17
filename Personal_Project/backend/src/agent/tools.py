@@ -399,6 +399,26 @@ class CalculationTool:
     def ebit_interest_cover(cls, ebitda: float, depreciation_amortisation: float, net_interest_expense: float):
         """(EBITDA - D&A) / net interest expense. Stricter than EBITDA interest cover."""
         return _divide(_d(ebitda, "ebitda") - _d(depreciation_amortisation, "depreciation_amortisation"), net_interest_expense, "net_interest_expense")
+    
+    # ---- Utils -------------------------------------------------------
+    
+    @classmethod
+    @llm_tool
+    def total(cls, values: list[float]):
+        """Total of an array of values"""
+        total : Decimal = Decimal(0.0)
+        for i, v in enumerate(values):
+            total += _d(v,f"value_{i}")
+        return total
+    
+    @classmethod
+    @llm_tool
+    def average(cls, values: list[float]):
+        if len(values) == 0:
+            raise CalculationError("Cannot supply empty list of values")
+        total = cls.total(values)
+        return total / _d(len(values),"count")
+    
  
     # ---- LLM plumbing -------------------------------------------------------
  
@@ -425,6 +445,7 @@ class CalculationTool:
         "total_assets": "Total assets from the balance sheet.",
         "net_worth": "Equity (total assets less total liabilities).",
         "net_interest_expense": "Interest expense less interest income for the period.",
+        "values" : "A list of numerical values."
     }
  
     @classmethod
