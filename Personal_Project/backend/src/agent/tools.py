@@ -140,7 +140,7 @@ class RecordSearchTool:
                 "type": "object",
                 "properties": {
                     "entity_name": {"type": "string", "description": f"The name of the entity to search across. One of {"".join(cls.records.keys())}"},
-                    "borrower_id": {"type": "string", "description": "The borrower_id of the records you wish to search across. If the entity contains a borrower_id field, this field must be included."},
+                    "borrower_id": {"type": "string", "description": "The borrower_id of the records you wish to search across. While the tools operates in restricted mode, if the entity contains a borrower_id field, this field must be included."},
                     "filter_condition": {
                         "type": "string",
                         "description": (
@@ -159,7 +159,7 @@ class RecordSearchTool:
     
         
     @classmethod
-    def get_records(cls, entity_name : str, borrower_id : str | None, filter_condition: str | None = None) -> tuple[str,bool]:
+    def get_records(cls, entity_name : str, borrower_id : str | None, filter_condition: str | None = None, restricted_mode : bool = True) -> tuple[str,bool]:
         """Get records of a particular entity, filtering by the borrower_id if applicable."""
         # if "borrower_id" in cls.records[entity_name] and borrower_id is None:
         #     return "Please provide a borrower_id to filter against.", False
@@ -171,14 +171,15 @@ class RecordSearchTool:
         #     "\n".join([f"{field} : {value}" for field, value in r.items()]) for r in records]
         #                       )
         # return formatted, True
-        rows = cls.records.get(entity_name)
-        if rows is None:
+        results = cls.records.get(entity_name)
+        if results is None:
             return f"Unknown entity '{entity_name}'. Valid: {', '.join(cls.records)}", True
 
-        if borrower_id is None and any("borrower_id" in r for r in rows):
-            return "Please provide a borrower_id to filter against.", True
+        if restricted_mode and borrower_id is None and any("borrower_id" in r for r in results):
+            return "Restricted Mode Enabled: Please provide a borrower_id to filter against.", True
 
-        results = [r for r in rows if "borrower_id" not in r or r["borrower_id"] == borrower_id]
+        if restricted_mode:
+            results = [r for r in results if "borrower_id" not in r or r["borrower_id"] == borrower_id]
 
         if filter_condition:
             try:

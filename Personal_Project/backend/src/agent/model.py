@@ -78,7 +78,7 @@ def answer_from_context(question: str, context: str) -> dict:
 
 
 # the loop - one call, check, maybe repeat
-MAX_ITERATIONS = 4
+MAX_ITERATIONS = 15
 def ask_with_tools(question: str) -> dict:
     """Run the tool-use loop until the model answers, orrrr the limit is hit"""
     messages : list[MessageParam] = [{"role": "user", "content": question}]
@@ -118,7 +118,7 @@ def ask_with_tools(question: str) -> dict:
         tool_results : list = []
         messages.append({"role" : "assistant", "content" : response.content})
         for tool_block in tool_blocks:
-            result_text, is_error = _execute_tool(tool_block.name, tool_block.input)
+            result_text, is_error = _execute_tool(tool_block.name, tool_block.input, False)
             if not is_error:
                 tool_calls_made += 1
             tool_results.append({
@@ -142,7 +142,7 @@ def ask_with_tools(question: str) -> dict:
 
     }
 
-def _execute_tool(name: str, tool_input: dict) -> tuple[str,bool]:
+def _execute_tool(name: str, tool_input: dict, restricted_mode: bool = True) -> tuple[str,bool]:
     """Run the requested tool. Returns (result_text, is_error)"""
 
     # Guard 1 - we only have 1 real tool, checking it is equal to that
@@ -161,7 +161,7 @@ def _execute_tool(name: str, tool_input: dict) -> tuple[str,bool]:
         if "entity_name" not in tool_input:
             return 'Error, missing required field "entity_name"', True
         print(tool_input)
-        result_text, is_error = RecordSearchTool.get_records(tool_input["entity_name"],tool_input.get("borrower_id"), tool_input.get("filter_condition"))
+        result_text, is_error = RecordSearchTool.get_records(tool_input["entity_name"],tool_input.get("borrower_id"), tool_input.get("filter_condition"), restricted_mode)
         return result_text, is_error
     elif name == "run_calculation":
         print(tool_input)
