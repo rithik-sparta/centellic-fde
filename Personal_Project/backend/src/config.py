@@ -17,6 +17,8 @@ try:
     
     MAX_ITERATIONS : int = 15
     
+    EMBED_MODEL : str = os.environ["VOYAGE_EMBED_MODEL"]
+    
 except Exception as e:
     raise HTTPException(status_code=500, detail=f"Server misconfiguration: Value for relevance floor ({os.environ["RELEVANCE_FLOOR"]}) must be castable to float")
 

@@ -4,7 +4,7 @@ import math
 import chromadb
 import voyageai
 from agent import document_store
-from config import VOYAGE_API_KEY
+from config import VOYAGE_API_KEY, VOYAGE_EMBED_MODEL
 from data.documents import documents
 from agent import chunk_index
 
@@ -25,7 +25,7 @@ def embed_texts(texts: list[str], input_type: str) -> tuple[ list[list[float]], 
 
     # Two types of input_type : document or query. Voyage shapes the two differently internally.
     # Helps optimise the meaning of the generated embedding depending on how it is used
-    result = voyage.embed(texts=texts, model= EMBED_MODEL, input_type=input_type)
+    result = voyage.embed(texts=texts, model= VOYAGE_EMBED_MODEL, input_type=input_type)
     return cast(list[list[float]], result.embeddings), cast(int, result.total_tokens)
     # returns the vectors and token count (can see cost)
 
@@ -52,26 +52,6 @@ def build_index() -> int:
 # Chroma will give us back distance... lower is closer
 def search(question: str, top_k: int = 3) -> list[dict]:
     """Embed the question and let Chroma do the storing"""
-    # if count() == 0:
-    #     raise RuntimeError("Index is empty - call index first.")
-    # query_vectors, _ = embed_texts([question], input_type="query")
-    # result = collection.query(query_embeddings = query_vectors, n_results = top_k) # type: ignore
-    # return [
-    #     {
-    #         "id" : doc_id,
-    #         "title" : metadata["title"],
-    #         "text" : text,
-    #         # Chroma will give us back distance... lower is closer...
-    #         # Do (1-disance) in order to flip from return distance to similarity
-    #         "score" : 1 - distance
-    #     }
-    #     for doc_id, text, metadata, distance in zip(
-    #         result["ids"][0],
-    #         result["documents"][0],  # type: ignore
-    #         result["metadatas"][0],  # type: ignore
-    #         result["distances"][0],  # type: ignore
-    #     )
-    # ]
     if count() == 0:
         raise RuntimeError("Index is empty, call POST doc_store/index first")
     query_vectors, _ = document_store.embed_texts([question], input_type="query")
