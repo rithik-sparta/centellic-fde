@@ -1,9 +1,14 @@
 from typing import cast
+import math
 
 import chromadb
 import voyageai
+from agent import document_store
 from config import VOYAGE_API_KEY
 from data.documents import documents
+from agent import chunk_index
+
+CHUNK_STRATEGY = "whole_document"
 
 EMBED_MODEL = "voyage-3-lite"
 voyage = voyageai.Client(  # type: ignore
@@ -12,20 +17,6 @@ voyage = voyageai.Client(  # type: ignore
     timeout = 30,
 )
 
-# writes to disk at the path we give it
-chroma = chromadb.PersistentClient(
-    path="./chroma_store",
-)
-
-collection = chroma.get_or_create_collection(
-    name="documents",
-    configuration={
-        # HNSW (Hierarchical Navigable Small World) is a graph based index used in vector databases to perform fast an appropriate kNN search.
-        "hnsw": {
-            "space" : "cosine"
-        }
-    }
-)
 
 def embed_texts(texts: list[str], input_type: str) -> tuple[ list[list[float]], int]:
     # embed a batch
@@ -39,42 +30,64 @@ def embed_texts(texts: list[str], input_type: str) -> tuple[ list[list[float]], 
     # returns the vectors and token count (can see cost)
 
 def count() -> int:
-    return collection.count()
+    # return collection.count()
+    return chunk_index.collection_for(CHUNK_STRATEGY).count()
 
 def build_index() -> int:
     """Embed every document and hand the vectors to chroma"""
-    texts = [doc["text"] for doc in documents]
-    vectors, tokens = embed_texts(texts, input_type = "document")
-    collection.upsert(
-        ids = [doc["id"] for doc in documents],
-        embeddings = vectors,  # type: ignore
-        documents = texts,
-        metadatas = [{"title" : doc["title"], "type" : doc["type"] , "date" : doc["date"]} for doc in documents],
-    )
+    # texts = [doc["text"] for doc in documents]
+    # vectors, tokens = embed_texts(texts, input_type = "document")
+    # collection.upsert(
+    #     ids = [doc["id"] for doc in documents],
+    #     embeddings = vectors,  # type: ignore
+    #     documents = texts,
+    #     metadatas = [{"title" : doc["title"], "type" : doc["type"] , "date" : doc["date"]} for doc in documents],
+    # )
 
-    return tokens
+    # return tokens
+    
+    return chunk_index.build(CHUNK_STRATEGY)["embedding_tokens"]
 
 
 # Chroma will give us back distance... lower is closer
 def search(question: str, top_k: int = 3) -> list[dict]:
     """Embed the question and let Chroma do the storing"""
+    # if count() == 0:
+    #     raise RuntimeError("Index is empty - call index first.")
+    # query_vectors, _ = embed_texts([question], input_type="query")
+    # result = collection.query(query_embeddings = query_vectors, n_results = top_k) # type: ignore
+    # return [
+    #     {
+    #         "id" : doc_id,
+    #         "title" : metadata["title"],
+    #         "text" : text,
+    #         # Chroma will give us back distance... lower is closer...
+    #         # Do (1-disance) in order to flip from return distance to similarity
+    #         "score" : 1 - distance
+    #     }
+    #     for doc_id, text, metadata, distance in zip(
+    #         result["ids"][0],
+    #         result["documents"][0],  # type: ignore
+    #         result["metadatas"][0],  # type: ignore
+    #         result["distances"][0],  # type: ignore
+    #     )
+    # ]
     if count() == 0:
-        raise RuntimeError("Index is empty - call index first.")
-    query_vectors, _ = embed_texts([question], input_type="query")
-    result = collection.query(query_embeddings = query_vectors, n_results = top_k) # type: ignore
-    return [
-        {
-            "id" : doc_id,
-            "title" : metadata["title"],
-            "text" : text,
-            # Chroma will give us back distance... lower is closer...
-            # Do (1-disance) in order to flip from return distance to similarity
-            "score" : 1 - distance
-        }
-        for doc_id, text, metadata, distance in zip(
-            result["ids"][0],
-            result["documents"][0],  # type: ignore
-            result["metadatas"][0],  # type: ignore
-            result["distances"][0],  # type: ignore
-        )
-    ]
+        raise RuntimeError("Index is empty, call POST doc_store/index first")
+    query_vectors, _ = document_store.embed_texts([question], input_type="query")
+    
+    return chunk_index.search_with_vectors(CHUNK_STRATEGY, query_vectors, k=top_k)[0]
+    
+def cosine_similarity(a: list[float], b: list[float]):
+    """How close together two vectors in space are, ignoring magnitude
+        1.0 exact match
+        0.0 unrelated
+        -1.0 means opposite
+    """
+    
+    dot = sum(x*y for x,y in zip(a,b))
+    abs_a = math.sqrt(sum(x*x for x in a))
+    abs_b = math.sqrt(sum(y*y for y in b))
+    
+    cosine_sim = dot / (abs_a*abs_b)
+    return cosine_sim

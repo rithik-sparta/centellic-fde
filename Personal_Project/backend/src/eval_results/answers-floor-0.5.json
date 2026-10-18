@@ -1,0 +1,44 @@
+{
+  "floor": 0.5,
+  "whole_document": {
+    "answer_accuracy": 0.781,
+    "refusal_accuracy": 1,
+    "false_refusals": [
+      "q05",
+      "q10",
+      "q25",
+      "q28",
+      "q33",
+      "q35",
+      "q54",
+      "q55",
+      "q56",
+      "q57",
+      "q59",
+      "q61",
+      "q62",
+      "q63"
+    ],
+    "wrong_or_unrefused": [],
+    "model_calls": 55,
+    "avg_input_tokens": 363.564
+  },
+  "sections_plain": {
+    "answer_accuracy": 0.859,
+    "refusal_accuracy": 1,
+    "false_refusals": [
+      "q10",
+      "q17",
+      "q25",
+      "q28",
+      "q35",
+      "q55",
+      "q56",
+      "q57",
+      "q62"
+    ],
+    "wrong_or_unrefused": [],
+    "model_calls": 61,
+    "avg_input_tokens": 366.508
+  }
+}

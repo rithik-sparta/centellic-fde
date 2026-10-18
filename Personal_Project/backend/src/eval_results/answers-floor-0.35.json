@@ -1,0 +1,23 @@
+{
+  "floor": 0.35,
+  "whole_document": {
+    "answer_accuracy": 0.984,
+    "refusal_accuracy": 1,
+    "false_refusals": [
+      "q54"
+    ],
+    "wrong_or_unrefused": [],
+    "model_calls": 70,
+    "avg_input_tokens": 673.343
+  },
+  "sections_plain": {
+    "answer_accuracy": 0.984,
+    "refusal_accuracy": 1,
+    "false_refusals": [],
+    "wrong_or_unrefused": [
+      "q62"
+    ],
+    "model_calls": 70,
+    "avg_input_tokens": 561.671
+  }
+}
