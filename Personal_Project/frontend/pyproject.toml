@@ -1,0 +1,7 @@
+[project]
+name = "personal_project-ui"
+version = "0.1.0"
+requires-python = "==3.12.*"
+
+[tool.mypy]
+mypy_path = "$MYPY_CONFIG_FILE_DIR"
