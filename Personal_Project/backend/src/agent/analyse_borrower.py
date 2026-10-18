@@ -2,7 +2,7 @@
 from typing import cast
 
 from pydantic import BaseModel, Field
-from config import MODEL
+from config import MODEL, MAX_ITERATIONS
 from agent.model import AGENT_SYSTEM_PROMPT, SYSTEM_PROMPT, TOOLS, _execute_tool, client
 from anthropic.types import MessageParam, ToolUnionParam
 from agent.summarise_borrower import build_prompt
@@ -57,7 +57,6 @@ def build_credit_assessment_prompt(borrower : dict):
     return prompt
     
     
-MAX_ITERATIONS = 15
 def credit_assessment(borrower : dict) -> dict:
     """Run the tool-use loop until the model answers, orrrr the limit is hit"""
     messages : list[MessageParam] = [{"role": "user", "content": build_credit_assessment_prompt(borrower)}]

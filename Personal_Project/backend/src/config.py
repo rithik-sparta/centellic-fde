@@ -15,6 +15,8 @@ try:
 
     VOYAGE_API_KEY : str = os.environ["VOYAGE_API_KEY"]
     
+    MAX_ITERATIONS : int = 15
+    
 except Exception as e:
     raise HTTPException(status_code=500, detail=f"Server misconfiguration: Value for relevance floor ({os.environ["RELEVANCE_FLOOR"]}) must be castable to float")
 

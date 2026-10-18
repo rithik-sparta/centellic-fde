@@ -4,7 +4,7 @@ from typing import cast
 
 import anthropic
 from anthropic.types import MessageParam, ToolUnionParam
-from config import ANTHROPIC_API_KEY, MODEL
+from config import ANTHROPIC_API_KEY, MODEL, MAX_ITERATIONS
 
 from agent.tools import CalculationTool, DocumentSearchTool, RecordSearchTool
 
@@ -78,7 +78,6 @@ def answer_from_context(question: str, context: str) -> dict:
 
 
 # the loop - one call, check, maybe repeat
-MAX_ITERATIONS = 15
 def ask_with_tools(question: str) -> dict:
     """Run the tool-use loop until the model answers, orrrr the limit is hit"""
     messages : list[MessageParam] = [{"role": "user", "content": question}]
