@@ -27,7 +27,7 @@
 * [X] Failures are handled: provider errors, empty indexes, unknown records, agent limits.
 * [X] The domain feels real: the data, prompts and refusal rule make sense to someone who works in it.
 * [X] Your version genuinely differs from the law firm version, following the six departures above.
-* [ ] You can explain, out loud, what every button press does end to end, including what is sent to
+* [X] You can explain, out loud, what every button press does end to end, including what is sent to
   Voyage, Chroma and Claude.
 * [X] You can defend your choices: the relevance floor, the iteration limit and the model choice.
 
@@ -37,14 +37,14 @@
   style calculation copied across.
 * [X] **Your own extra tool.** The agent has a tool that is not a document search.
 * [X] **Your own analysis schema.** The structured output has fields specific to your domain.
-* [ ] **Your own refusal rule.** Decide what the system should not answer, and prove it in a test.
+* [X] **Your own refusal rule.** Decide what the system should not answer, and prove it in a test.
 * [X] **One time-sensitive or risk-sensitive element.** For example document dates, limits and
   thresholds, or a human-in-the-loop rule.
-* [ ] **One UI feature that the law firm version did not have.**
+* [X] **One UI feature that the law firm version did not have.**
 
 ## Deliverables
 
-- [ ] The API project and the UI project, each runnable from its README.
+- [X] The API project and the UI project, each runnable from its README.
 - [X] Your synthetic data and documents.
 - [X] The one page design note.
 - [ ] A live demo of at least one question the agent answers using both tools, and one question it
@@ -93,20 +93,20 @@ or hardcoded.
 
 ### 5. UI (Streamlit, in its own project with its own environment)
 
-- [ ] **Ask:** free text question to the agent, showing the answer, tool calls, tokens and a distinct
+- [X] **Ask:** free text question to the agent, showing the answer, tool calls, tokens and a distinct
   message if the agent did not complete.
-- [ ] **Search only:** retrieval without generation, listing every result with title and score.
+- [X] **Search only:** retrieval without generation, listing every result with title and score.
   Handle "index not built" differently from an ordinary failure.
-- [ ] **Streaming summary:** pick a record, watch the text arrive as it streams.
-- [ ] **One feature of your own design** that fits your domain (a comparison view, a watchlist, an
+- [X] **Streaming summary:** pick a record, watch the text arrive as it streams.
+- [X] **One feature of your own design** that fits your domain (a comparison view, a watchlist, an
   alert triage screen, a chart, anything that uses your API in a way the law firm version did not).
 
 ### 6. Engineering basics
 
 - [X] Tests with the LLM and embedding calls mocked. Cover at least the summary, the refusal rule
   and the agent loop, including the iteration limit.
-- [ ] A `requirements.txt` for each project.
-- [ ] A README with the exact commands to run the API and the UI, and the environment variables needed.
+- [X] A `requirements.txt` for each project.
+- [X] A README with the exact commands to run the API and the UI, and the environment variables needed.
 
 * [X] add a tool that tests covenant headroom from the numbers. The structured output
   is a credit assessment with a strengths list, a risks list and a proposed rating with rationale.
@@ -137,11 +137,11 @@ Day 4
 
 Day 5
 
-* [ ] Streamlit UI with the three required features and your own
+* [X] Streamlit UI with the three required features and your own
 
 Day 6
 
-* [ ] Hardening
-* [ ] README
+* [X] Hardening
+* [X] README
 * [X] design note
 * [ ] demo rehearsal
