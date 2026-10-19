@@ -19,6 +19,7 @@ import hashlib
 import chromadb
 
 from agent import chunking
+from config import VOYAGE_EMBED_MODEL
 from agent import document_store
 from data.documents import documents as DOCUMENTS
 
@@ -52,7 +53,7 @@ def embed_batched(texts: list, input_type: str) -> tuple[list[list[float]],int]:
 # the fingerprint changes if the text, the embedding model or the order changes... and stays put if nothing does
 def fingerprint(chunks: list[dict]) -> str:
     # SHA-256 - a hashing algorithm that returns a fixed length code (64 characters long)
-    digest = hashlib.sha256(document_store.EMBED_MODEL.encode())
+    digest = hashlib.sha256(VOYAGE_EMBED_MODEL.encode())
     # Feed in pieces same output as feeding all at once
     for c in chunks:
         digest.update(f"{c['id']}\n{c['text']}\n".encode())

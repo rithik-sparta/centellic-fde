@@ -9,15 +9,15 @@ try:
 
     MODEL : str = os.environ["ANTHROPIC_MODEL"]
 
-    RELEVANCE_FLOOR : float = float(os.environ["RELEVANCE_FLOOR"])
-
     ANTHROPIC_API_KEY : str = os.environ["ANTHROPIC_API_KEY"]
+
+    VOYAGE_EMBED_MODEL : str = os.environ["VOYAGE_EMBED_MODEL"]
 
     VOYAGE_API_KEY : str = os.environ["VOYAGE_API_KEY"]
     
-    MAX_ITERATIONS : int = 15
+    RELEVANCE_FLOOR : float = float(os.environ["RELEVANCE_FLOOR"])
     
-    EMBED_MODEL : str = os.environ["VOYAGE_EMBED_MODEL"]
+    MAX_ITERATIONS : int = 15
     
 except Exception as e:
     raise HTTPException(status_code=500, detail=f"Server misconfiguration: Value for relevance floor ({os.environ["RELEVANCE_FLOOR"]}) must be castable to float")

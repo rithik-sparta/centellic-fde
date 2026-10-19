@@ -10,7 +10,6 @@ from agent import chunk_index
 
 CHUNK_STRATEGY = "whole_document"
 
-EMBED_MODEL = "voyage-3-lite"
 voyage = voyageai.Client(  # type: ignore
     api_key = VOYAGE_API_KEY,
     max_retries = 3,
