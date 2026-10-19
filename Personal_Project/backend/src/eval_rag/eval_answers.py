@@ -44,7 +44,7 @@ def run(strategy: str, vectors: list[list[float]], floor: float) -> dict:
         ok = keywords_present(answer, q["keywords"]) if q["doc_id"] else is_refusal(answer)
         correct.append((q, ok))
         if not ok:
-            print(f"{q["id"]}\n{q['keywords']}\n{q["doc_id"]}\n{context.build_context(usable)}\nANSWER\n{answer}\nEOL\n\n")
+            print(f"{strategy}\n{q["id"]}\n{q['keywords']}\n{q["doc_id"]}\n{context.build_context(usable)}\nANSWER\n{answer}\nEOL\n\n")
             
             (false_refusals if q["doc_id"] and is_refusal(answer) else wrong).append(q["id"])
         
