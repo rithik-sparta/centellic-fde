@@ -61,7 +61,7 @@ EVAL_SET = [
     {"id": "q13", "question": "What is the maximum net debt to EBITDA ratio Oakridge Logistics must maintain?",
      "doc_id": "doc-04", "evidence": "at or below 4.75x", "keywords": ["4.75"], "kind": "numeric"},
     {"id": "q14", "question": "Within how many days of quarter end must Oakridge Logistics deliver its covenant compliance certificate?",
-     "doc_id": "doc-04", "evidence": "must be delivered to the lender within 30 days of each quarter end", "keywords": ["30"], "kind": "disambiguation"},
+     "doc_id": "doc-04", "evidence": "must be delivered to the lender within 20 days of each quarter end", "keywords": ["20"], "kind": "disambiguation"},
     {"id": "q15", "question": "Under what security document can the Oakridge Logistics lender enforce its security?",
      "doc_id": "doc-04", "evidence": "enforce its security under the all-assets debenture", "keywords": ["debenture"], "kind": "rare-term"},
     {"id": "q16", "question": "Are lease liabilities included in debt for the Oakridge Logistics leverage covenant?",
