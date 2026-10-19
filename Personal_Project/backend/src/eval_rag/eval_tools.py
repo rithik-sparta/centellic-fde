@@ -14,11 +14,30 @@ def contains_evidence(chunk_text : str, evidence : str) -> bool:
 
 
 #alternative matches
-def _alternative_matches(answer : str, alternative : str) -> bool:
+def _alternative_matches(answer: str, alternative: str) -> bool:
+    alternative = alternative.strip().lower()
     prefix = alternative.endswith("*")
-    core = re.escape(alternative.rstrip("*").lower())
-    ending = "" if prefix else r"(?![a-z0-9])"
-    return (re.search(rf"(?<![a-z0-9]){core}{ending}", answer.lower()) is not None) or (alternative in answer.lower())
+    core = alternative.rstrip("*").strip()
+    if not core:
+        return False
+
+    # Leading boundary
+    if core[0].isdigit():
+        # Numbers may follow letters or symbols (GBP7.5, $7.5, £7.5),
+        # but must not be the tail of a longer number (17.5, 1,200).
+        start = r"(?<![0-9])(?<![0-9][.,])"
+    else:
+        start = r"(?<![a-z0-9])"
+
+    # Trailing boundary (unchanged)
+    if prefix:
+        end = ""
+    elif core[-1].isdigit():
+        end = r"(?![0-9])(?![.,][0-9])"
+    else:
+        end = r"(?![a-z0-9])"
+
+    return re.search(start + re.escape(core) + end, answer.lower()) is not None
 
 
 #keywords_present
