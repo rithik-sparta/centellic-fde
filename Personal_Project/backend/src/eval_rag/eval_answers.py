@@ -10,7 +10,7 @@ import json
 import statistics
 from pathlib import Path
 
-import agent.chunk_index as chunk_index
+from chunking import chunk_index
 import agent.context as context
 # import hybrid
 import agent.model as mdl

@@ -11,7 +11,7 @@ from fastapi.testclient import TestClient
 import agent.tools as tools
 import agent.model as mdl
 import agent.summarise_borrower as sb
-import agent.document_store as ds
+import retrieval.document_store as ds
 import anthropic
 
 from main import app

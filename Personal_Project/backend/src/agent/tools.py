@@ -17,7 +17,7 @@ from data.records import (
     lending_policies,
 )
 
-from agent.document_store import search
+from retrieval.document_store import search
 
 
 class DocumentSearchTool:

@@ -11,8 +11,8 @@ import json
 import statistics
 from pathlib import Path
 
-import agent.chunk_index as chunk_index
-import agent.chunking as chunking
+from chunking import chunk_index
+from chunking import chunking
 from eval_rag.eval_set_credit import EVAL_SET
 from eval_rag.eval_tools import contains_evidence
 

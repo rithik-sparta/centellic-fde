@@ -1,12 +1,10 @@
 from typing import cast
 import math
 
-import chromadb
 import voyageai
-from agent import document_store
+from retrieval import document_store
 from config import VOYAGE_API_KEY, VOYAGE_EMBED_MODEL
-from data.documents import documents
-from agent import chunk_index
+from chunking import chunk_index
 
 CHUNK_STRATEGY = "whole_document"
 
@@ -34,16 +32,6 @@ def count() -> int:
 
 def build_index() -> int:
     """Embed every document and hand the vectors to chroma"""
-    # texts = [doc["text"] for doc in documents]
-    # vectors, tokens = embed_texts(texts, input_type = "document")
-    # collection.upsert(
-    #     ids = [doc["id"] for doc in documents],
-    #     embeddings = vectors,  # type: ignore
-    #     documents = texts,
-    #     metadatas = [{"title" : doc["title"], "type" : doc["type"] , "date" : doc["date"]} for doc in documents],
-    # )
-
-    # return tokens
     
     return chunk_index.build(CHUNK_STRATEGY)["embedding_tokens"]
 

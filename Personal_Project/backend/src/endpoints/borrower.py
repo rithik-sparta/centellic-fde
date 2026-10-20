@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from agent import analyse_borrower as ab
-from agent import document_store as ds
+from retrieval import document_store as ds
 from agent import model as mdl
 from agent import summarise_borrower as sb
 from anthropic import APIStatusError, APITimeoutError, RateLimitError

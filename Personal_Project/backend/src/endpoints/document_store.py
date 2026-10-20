@@ -1,6 +1,6 @@
 
 from fastapi import APIRouter, HTTPException
-from agent import document_store as ds
+from retrieval import document_store as ds
 from pydantic import BaseModel, Field
 
 router = APIRouter(prefix = "/doc_store", tags=["doc_store"])

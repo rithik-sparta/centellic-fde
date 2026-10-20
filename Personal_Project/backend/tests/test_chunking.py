@@ -1,11 +1,10 @@
 """ a chunker must not lose, duplicate or mangle text """
 
-import re
 
 import pytest
 
 from eval_rag.eval_tools import contains_evidence
-import agent.chunking as chunking
+from chunking import chunking
 from data.documents import documents as DOCUMENTS
 
 ALL_DOCS : list[dict] = DOCUMENTS 

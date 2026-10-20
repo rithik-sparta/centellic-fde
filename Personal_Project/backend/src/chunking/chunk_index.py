@@ -18,9 +18,9 @@ import hashlib
 
 import chromadb
 
-from agent import chunking
+from chunking import chunking
 from config import VOYAGE_EMBED_MODEL
-from agent import document_store
+from retrieval import document_store
 from data.documents import documents as DOCUMENTS
 
 ALL_DOCUMENTS : list[dict] = DOCUMENTS
