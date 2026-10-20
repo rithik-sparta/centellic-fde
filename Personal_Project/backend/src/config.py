@@ -1,7 +1,6 @@
 import os
 
 from dotenv import load_dotenv
-from fastapi import HTTPException
 
 load_dotenv()
 
@@ -19,6 +18,9 @@ try:
     
     MAX_ITERATIONS : int = 15
     
-except Exception as e:
-    raise HTTPException(status_code=500, detail=f"Server misconfiguration: Value for relevance floor ({os.environ["RELEVANCE_FLOOR"]}) must be castable to float")
+except ValueError as exc:
+    raise RuntimeError(f"Server misconfiguration: Value for relevance floor ({os.environ["RELEVANCE_FLOOR"]}) must be castable to float") from exc
+except RuntimeError as exc:
+    raise RuntimeError("Missing an environment variable:") from exc
+
 

@@ -53,7 +53,7 @@ def citations_in(text: str) -> list[str]:
 def check_citations(answer: str | None, source_ids: list[str]) -> dict:
     """Cheap structural checks. Catches uncited claims and citations to sources we never gave.
     """
-    if is_refusal(answer):
+    if answer is None or is_refusal(answer):
         return {"refusal": True, "cited" : [], "invalid": [], "uncited_sentences" : [], "passed" : True}
     
     sentences = split_sentences(answer)

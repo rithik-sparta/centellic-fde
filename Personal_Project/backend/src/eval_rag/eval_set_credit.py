@@ -26,7 +26,7 @@ Kinds used here:
   rare-term          depends on a specific uncommon word (debenture, unsecured, reimbursement)
 """
 
-EVAL_SET = [
+EVAL_SET : list[dict] = [
     # Northbridge Components annual credit review (doc-01)
     {"id": "q01", "question": "What is Northbridge Components' net leverage in its annual credit review?",
      "doc_id": "doc-01", "evidence": "Net leverage 2.59x; interest cover 5.37x", "keywords": ["2.59"], "kind": "title-dependent"},

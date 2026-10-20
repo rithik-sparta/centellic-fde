@@ -24,7 +24,10 @@ def run(strategy: str, vectors: list[list[float]], floor: float) -> dict:
     ranked = chunk_index.search_with_vectors(strategy, vectors, k=3)
     # place to store results
     # False refusal - Info exists but the model does not answer it
-    correct, false_refusals, wrong, tokens = [],[],[],[]
+    correct : list[tuple[dict,bool]] = []
+    false_refusals : list[str] = []
+    wrong : list[str] = []
+    tokens : list[int] = []
     for q, hits in zip(EVAL_SET, ranked):
         usable = [h for h in hits if h["score"] >= floor]
         # usable = [hit for hit in hits if hybrid.is_usable(hit, floor)]

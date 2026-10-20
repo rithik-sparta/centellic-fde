@@ -37,7 +37,9 @@ def split_sentences(text: str) -> list[str]:
 def pack(units: list[str], max_words: int) -> list[str]:
     """Join whole units until adding the next one would pass max_words"""
     # groups holds dinished chunks, current is the chunk being built, count is its word total
-    groups, current, count = [], [], 0
+    groups : list[str] = []
+    current : list[str] = []
+    count : int = 0
     for unit in units:
         n = len(unit.split())
         if current and count + n > max_words:

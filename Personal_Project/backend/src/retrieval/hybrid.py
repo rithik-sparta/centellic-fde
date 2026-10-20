@@ -4,7 +4,7 @@ Hybrid search: vector search and keyword search, merge by rank.
 
 from functools import lru_cache
 
-import bm25
+from retrieval import bm25
 from chunking import chunking, chunk_index
 from retrieval import fusion
 

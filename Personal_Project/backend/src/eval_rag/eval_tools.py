@@ -48,7 +48,7 @@ def _alternative_matches(answer: str, alternative: str) -> bool:
 
 def keywords_present(answer : str | None, keywords : list[str]) -> bool:
     """True only for a non-refusal answer that contains every keyword group"""
-    if is_refusal(answer):
+    if answer is None or is_refusal(answer):
         return False
     
     return all(
