@@ -32,3 +32,9 @@ def test_citation_after_full_stop_still_counts():
     report = grounding.check_citations(answer, ["doc-101"])
     assert report["passed"] is True
     assert len(report["cited"]) is not None
+    
+def test_doc_id_works_on_two_digit_id():
+    answer = "Based on the rating direction summaries provided, **Westmoor Renewables Ltd** has the most positive outlook [doc-11]."
+    report = grounding.check_citations(answer, ["doc-11"])
+    assert report["passed"] is True
+    assert len(report["cited"]) is not None
