@@ -90,7 +90,7 @@ def build(strategy: str, force: bool = False) -> dict:
         ids=[c["id"] for c in chunks],
         embeddings = vectors, # type: ignore
         documents=[c["text"] for c in chunks],
-        metadatas = [{"doc-id": c["doc_id"], "title" : c["title"], "fingerprint" : fp} for c in chunks],
+        metadatas = [{"doc_id": c["doc_id"], "title" : c["title"], "fingerprint" : fp} for c in chunks],
         
     )
     
@@ -126,7 +126,7 @@ def search_with_vectors(strategy: str, query_vectors: list[list[float]], k: int)
     """
     return [
         # Chroma returns 4 parallel nested lists
-       [{"id": meta["doc-id"], "chunk_id": chunk_id, "title": meta["title"], "text": text, "score" : 1 - distance} for chunk_id, text, meta, distance in zip(ids, docs, metas, dists) ]
+       [{"id": meta["doc_id"], "chunk_id": chunk_id, "title": meta["title"], "text": text, "score" : 1 - distance} for chunk_id, text, meta, distance in zip(ids, docs, metas, dists) ]
        for ids, docs, metas, dists in zip(result["ids"], result["documents"], result["metadatas"], result["distances"]) # type: ignore
     ]
 
