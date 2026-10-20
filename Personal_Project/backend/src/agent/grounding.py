@@ -9,7 +9,7 @@ import re
 REFUSAL_SENTENCE = "The provided documents do not answer that question."
 
 # The find all will return doc-001 rather than [doc-001]
-CITATION = re.compile(r"\[(doc-\d{3})\]")
+CITATION = re.compile(r"\[(doc-\d{2,})\]")
 
 # normalise - lower-case and squash every run of spaces, tabs/newlines into one space.
     # we need this as models sometimes wrap lines... so without normalise a refusal 
