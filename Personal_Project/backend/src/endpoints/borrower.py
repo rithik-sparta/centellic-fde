@@ -12,6 +12,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from utils import Question, _create_new_id, _delete_helper, ddmmyyyyDate
+from agent import grounding
 
 router = APIRouter(prefix = "/borrowers", tags=["borrowers"])
 _seen_keys : dict[str,dict] = {}
@@ -239,7 +240,8 @@ def answer_with_context(q : Question):
                           "score" : round(h["score"],3)} for h in usable],
             "input_tokens" : result["input_tokens"], 
             "output_tokens" : result["output_tokens"], 
-            "stop_reason" : result["stop_reason"]
+            "stop_reason" : result["stop_reason"],
+            "grounding" : grounding.check_citations(result["answer"], [h['id'] for h in usable])
     }
     
 @router.post("/ask")
