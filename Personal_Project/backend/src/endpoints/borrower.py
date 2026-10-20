@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from agent import analyse_borrower as ab
-from retrieval import document_store as ds
+from retrieval import document_store as ds, hybrid
 from agent import model as mdl
 from agent import summarise_borrower as sb
 from anthropic import APIStatusError, APITimeoutError, RateLimitError
@@ -200,7 +200,7 @@ def answer_with_context(q : Question):
     
     # 2. Filter, and decide whether to make a call to the model at all.
     # compare against our RELEVANCE_FLOOR
-    usable = [hit for hit in hits if hit["score"] >= RELEVANCE_FLOOR]
+    usable = [hit for hit in hits if hybrid.is_usable(hit, RELEVANCE_FLOOR)]
     
     if not usable:
         return {

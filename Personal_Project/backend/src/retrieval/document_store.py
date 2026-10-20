@@ -2,11 +2,13 @@ from typing import cast
 import math
 
 import voyageai
-from retrieval import document_store
+from retrieval import document_store, hybrid
 from config import VOYAGE_API_KEY, VOYAGE_EMBED_MODEL
 from chunking import chunk_index
 
 CHUNK_STRATEGY = "whole_document"
+
+SEARCH_MODE = "hybrid"
 
 voyage = voyageai.Client(  # type: ignore
     api_key = VOYAGE_API_KEY,
@@ -42,6 +44,9 @@ def search(question: str, top_k: int = 3) -> list[dict]:
     if count() == 0:
         raise RuntimeError("Index is empty, call POST doc_store/index first")
     query_vectors, _ = document_store.embed_texts([question], input_type="query")
+    
+    if SEARCH_MODE=="hybrid":
+        return hybrid.search_with_vectors(CHUNK_STRATEGY, question, query_vectors[0], top_k)
     
     return chunk_index.search_with_vectors(CHUNK_STRATEGY, query_vectors, k=top_k)[0]
     
