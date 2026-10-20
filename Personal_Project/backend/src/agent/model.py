@@ -7,6 +7,7 @@ from anthropic.types import MessageParam, ToolUnionParam
 from config import ANTHROPIC_API_KEY, MODEL, MAX_ITERATIONS
 
 from agent.tools import CalculationTool, DocumentSearchTool, RecordSearchTool
+from agent.grounding import REFUSAL_SENTENCE
 
 SYSTEM_PROMPT = (
     "You are a credit analyst reviewing a borrowers performance. "
@@ -15,10 +16,10 @@ SYSTEM_PROMPT = (
 )
 
 GROUNDED_SYSTEM_PROMPT = (
-    "You are a credit analyst, Answer using ONLY the context provided"
+    "You are a credit analyst, Answer using ONLY the context provided citing every claim that you make."
     "Cite the document id in square brackets after each claim, like [doc-01]."
     "If the context does not contain the answer, say exactly: "
-    "'The provided documents do not answer that question.'"
+    f"'{REFUSAL_SENTENCE}'"
     "Never use knowledge from outside the context. Use British English. No em dash characters."
 )
 
@@ -26,7 +27,7 @@ AGENT_SYSTEM_PROMPT = (
     "You are credit analyst with access to tools to assess a borrowers credit rating. Use the tool whenever a question needs "
     "information you don't already have - do not guess. Cite the document id in square brackets after each claim, like [doc-01]."
     "If the context does not contain the answer, say exactly:"
-    "'The provided documents do not answer that question.'"
+    f"'{REFUSAL_SENTENCE}'"
     "Use the right tool for the job:"
     "(1) search_document_store to find relevant documents for a question."
     "(2) search_records to search relevant records to assess a borrower."
@@ -84,6 +85,7 @@ def ask_with_tools(question: str) -> dict:
     total_input_tokens = 0
     total_output_tokens = 0
     tool_calls_made = 0
+    tool_count : dict[str,int] = {}
 
     # the loop
     for _ in range(MAX_ITERATIONS):
@@ -106,6 +108,7 @@ def ask_with_tools(question: str) -> dict:
                 "answer": final_text,
                 "completed": True,
                 "tool_calls_made": tool_calls_made,
+                "tool_count": tool_count,
                 "input_tokens": total_input_tokens,
                 "output_tokens": total_output_tokens,
                 "stop_reason": response.stop_reason,
@@ -120,6 +123,7 @@ def ask_with_tools(question: str) -> dict:
             result_text, is_error = _execute_tool(tool_block.name, tool_block.input, False)
             if not is_error:
                 tool_calls_made += 1
+                tool_count[tool_block.name] = tool_count.get(tool_block.name, 0)+1
             tool_results.append({
                 "type" : "tool_result",
                 "tool_use_id" : tool_block.id,
@@ -135,6 +139,7 @@ def ask_with_tools(question: str) -> dict:
         "answer": "",
         "completed" : False,
         "tool_calls_made": tool_calls_made,
+        "tool_count": tool_count,
         "input_tokens": total_input_tokens,
         "output_tokens": total_output_tokens,
         "stop_reason": response.stop_reason,
